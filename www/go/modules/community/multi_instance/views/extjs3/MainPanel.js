@@ -94,6 +94,19 @@ go.modules.community.multi_instance.MainPanel = Ext.extend(go.grid.GridPanel, {
 		this.on('render', function() {
 			this.store.load();
 		}, this);
+
+		this.on('rowdblclick', function (grid, rowIndex, e) {
+
+			var record = grid.getStore().getAt(rowIndex);
+			if (record.get('permissionLevel') < GO.permissionLevels.write) {
+				return;
+			}
+
+			var dialog = new go.modules.community.multi_instance.Dialog();
+			dialog.currentId = record.id;
+			dialog.show();
+
+		});
 	}
 });
 
