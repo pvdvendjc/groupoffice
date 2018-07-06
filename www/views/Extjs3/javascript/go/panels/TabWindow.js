@@ -6,6 +6,15 @@ go.panels.TabWindow = Ext.extend(go.Window, {
 	iconCls: 'ic-settings',
 	title: '',
 	currentId: 0,
+	tabPanel: new Ext.TabPanel({
+		headerCfg: {cls:'x-hide-display'},
+		region: "center",
+		items: []
+	}),
+	tabStore: new Ext.data.ArrayStore({
+		fields: ['name', 'icon', 'visible'],
+		data: []
+	}),
 
 	initComponent: function () {
 
@@ -19,17 +28,6 @@ go.panels.TabWindow = Ext.extend(go.Window, {
 			text: t('Close'),
 			handler: this.close,
 			scope: this
-		});
-
-		this.tabPanel = new Ext.TabPanel({
-			headerCfg: {cls:'x-hide-display'},
-			region: "center",
-			items: []
-		});
-
-		this.tabStore = new Ext.data.ArrayStore({
-			fields: ['name', 'icon', 'visible'],
-			data: []
 		});
 
 		this.selectMenu = new Ext.Panel({

@@ -29,11 +29,14 @@ go.modules.community.multi_instance.InstanceDialog = Ext.extend(Ext.form.FormPan
 		go.modules.community.multi_instance.InstanceDialog.superclass.initComponent.call(this)
 	},
 	onLoad: function(cb, tabPanel) {
+
+		var instances = tabPanel.entityStore.get([tabPanel.currentId]);
+
+		this.getForm().setValues(instances[0]);
+
 		if (tabPanel.currentId > 0) {
 			this.hostnameField.disable();
 		}
-		var instances = tabPanel.entityStore.get([tabPanel.currentId]);
-		this.load(instances[0]);
 	}
 });
 
