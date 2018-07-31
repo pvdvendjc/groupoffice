@@ -15,6 +15,14 @@ use go\core\util\DateTime;
 abstract class Entity  extends \go\core\orm\Entity {	
 	
 	/**
+	 * Track changes in the core_change log for the JMAP protocol.
+	 * Disabled during install.
+	 * 
+	 * @var boolean 
+	 */
+	public static $trackChanges = true;
+	
+	/**
 	 * The Entity ID
 	 * 
 	 * @var int
@@ -22,28 +30,12 @@ abstract class Entity  extends \go\core\orm\Entity {
 	public $id;
 
 	/**
-	 * The modseq when the entity was last modified or deleted.
-	 * 
-	 * It's a global integer that is incremented on any entity update.
-	 * 
-	 * @var int  
-	 */
-	public $modSeq;
-
-	/**
-	 * When an entity is deleted it's not really deleted. Only deletedAt is set to the time when it was deleted.
-	 * The {@see find()} method will add "where deletedAt is null" to the query conditions.
-	 * @var DateTime
-	 */
-	public $deletedAt;
-
-	/**
 	 * Get the current state of this entity
 	 * 
 	 * @return int
 	 */
 	public static function getState() {
-		return StateManager::get()->current(static::class);
+		return static::getType()->highestModSeq;
 	}
 
 	/**
@@ -56,9 +48,15 @@ abstract class Entity  extends \go\core\orm\Entity {
 	 */
 	protected function internalSave() {
 		
-		$this->modSeq = StateManager::get()->next(static::class);
+		if(!parent::internalSave()) {
+			return false;
+		}
 		
-		return parent::internalSave();
+		if(self::$trackChanges) {
+			$this->getType()->change($this);		
+		}
+		
+		return true;
 	}
 	
 	/**
@@ -67,33 +65,13 @@ abstract class Entity  extends \go\core\orm\Entity {
 	 * @return boolean
 	 */
 	protected function internalDelete() {
-		$this->deletedAt = new DateTime();
-
-		return $this->internalSave();
-	}
-	
-	/**
-	 * Hard delete the entity
-	 * 
-	 * Don't set "deletedAt" but purge it from the database.
-	 * 
-	 * @return boolean
-	 */
-	public function deleteHard() {
-		return parent::internalDelete();
-	}
-	
-	protected static function internalFind( array $fetchProperties = []) {
 		
-		$query = parent::internalFind($fetchProperties);
-		
-		//for compatibility with old models
-		if(static::getMapping()->getColumn('deletedAt')) {
-			$query->andWhere(['deletedAt' => NULL]);
+		if(!parent::internalDelete()) {
+			return false;
 		}
 		
-		return $query;
+		$this->getType()->change($this);
 		
-	}
-	
+		return true;
+	}	
 }

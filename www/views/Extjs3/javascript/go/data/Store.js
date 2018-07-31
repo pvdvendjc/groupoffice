@@ -62,7 +62,7 @@ go.data.Store = Ext.extend(Ext.data.JsonStore, {
 			this.baseParams.filter = {};
 		}
 		
-		if(!this.baseParams) {
+		if(!this.baseParams.limit) {
 			this.baseParams.limit = 100; //default limit of 100.
 		}
 		
@@ -167,7 +167,7 @@ go.data.Store = Ext.extend(Ext.data.JsonStore, {
 	},
 	
 	onUpdate : function(store, record, operation) {
-		
+		//debugger;
 		if(this.serverUpdate) {
 			return;
 		}

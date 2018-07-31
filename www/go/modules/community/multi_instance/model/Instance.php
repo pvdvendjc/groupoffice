@@ -10,12 +10,16 @@ use function GO;
 
 class Instance extends Entity {
 	
-	public $id;
-	
-	public $hostname;
-	
+	public $id;	
+	public $hostname;	
 	public $createdAt;
-	
+	public $userCount;
+	public $lastLogin;	
+	public $adminDisplayName;	
+	public $adminEmail; 	
+	public $loginCount;	
+	public $modifiedAt;
+
 	public $removedAt;
 
 	protected static function defineMapping() {
@@ -27,7 +31,14 @@ class Instance extends Entity {
 		parent::init();
 		
 		if(!$this->isNew()) {
-			$this->getInstanceDbData();
+			//update model from instance db once a day
+			if(!isset($this->modifiedAt) || $this->modifiedAt <= new \DateTime("-1 day")) {
+				$this->getInstanceDbData();
+				
+				if($this->isModified() && !$this->internalSave()) {
+					throw new \Exception("Could not save instance data! ". var_export($this->getValidationErrors(), true));
+				}
+			}
 		}
 	}
 	
@@ -78,7 +89,11 @@ class Instance extends Entity {
 		return parent::internalValidate();
 	}
 	
-	private function getConfigFile() {
+	/**
+	 * Get configuration file
+	 * @return File
+	 */
+	public function getConfigFile() {
 		return new File('/etc/groupoffice/multi_instance/' . $this->hostname . '/config.php');
 	}
 	
@@ -158,7 +173,7 @@ class Instance extends Entity {
 				$this->dropDatabaseUser($dbUsername);
 			}
 			
-			parent::deleteHard();
+			parent::internalDelete();
 			
 			throw $e;
 		}
@@ -228,63 +243,58 @@ class Instance extends Entity {
 		return $this->instanceDbConn;
 	}
 	
+	
+	public function createAccessToken() {
+		$data = [
+				"loginToken" => uniqid().bin2hex(openssl_random_pseudo_bytes(16)),
+				"accessToken" => uniqid().bin2hex(openssl_random_pseudo_bytes(16)),
+				"expiresAt" => new \DateTime("+1 hour"),
+				"userAgent" => "Multi Instance Module",
+				"userId" => 1,
+				"createdAt" => new \DateTime(),
+				"lastActiveAt" => new \DateTime(),
+				"remoteIpAddress" => $_SERVER['REMOTE_ADDR']
+		];
+		
+		if(!$this->getInstanceDbConnection()->insert('core_auth_token', $data)->execute()) {
+			throw new \Exception("Failed to create access token");
+		}
+		
+		return $data['accessToken'];	
+	}
+	
 	private function getInstanceDbData(){
 		try {
 			$record = (new \go\core\db\Query())
 						->setDbConnection($this->getInstanceDbConnection())
-						->select('count(*) as userCount, max(lastlogin) as lastLogin')
+						->select('count(*) as userCount, max(lastLogin) as lastLogin, count(loginCount) as loginCount')
 						->from('core_user')
 						->where('enabled', '=', true)
-						->execute()->fetch();	
+						->single();	
 			
+			$this->loginCount = (int) $record['loginCount'];
 			$this->userCount = (int) $record['userCount'];
-			$this->lastLogin = !empty($record['lastLogin']) ? new \go\core\util\DateTime('@'.$record['lastLogin']) : null;
+			$this->lastLogin = !empty($record['lastLogin']) ? new \go\core\util\DateTime($record['lastLogin']) : null;
 			
+			$record = (new \go\core\db\Query())
+						->setDbConnection($this->getInstanceDbConnection())
+						->select('displayName, email')
+						->from('core_user')
+						->where('id', '=', 1)
+						->single();
 			
+			$this->adminDisplayName = $record['displayName'];
+			$this->adminEmail = $record['email'];
 		}
 		catch(\Exception $e) {
 			//ignore
 		}
 	}
 	
-	private $userCount;
-	private $lastLogin;
 	
-	/**
-	 * Get the number of enabled users
-	 * 
-	 * @return int
-	 */
-	public function getUserCount() {		
-		return $this->userCount;
-	}
-	
-	public function getLastLogin() {
-		return $this->lastLogin;
-	}
-	
-	public function getModifiedAt() {
-		return $this->getLastLogin();
-	}
 	
 	
 	protected function internalDelete() {
-		
-		if(!parent::internalDelete()) {
-			return false;
-		}
-		
-		//rename config.php so it's unavailable
-		return $this->getConfigFile()->rename('config.php.bak');
-	}
-	
-	
-	public function deleteHard() {
-		
-		if(!parent::deleteHard()) {
-			return false;
-		}
-		
 		$this->getTempFolder()->delete();
 		$this->getDataFolder()->delete();
 		$this->getConfigFile()->getFolder()->delete();
@@ -292,7 +302,29 @@ class Instance extends Entity {
 		$this->dropDatabaseUser($this->getDbUser());
 		$this->dropDatabase($this->getDbName());
 		
-		return true;
+		return parent::internalDelete();
 	}
-
+	
+	
+	public function setEnabled($value) {
+		include($this->getConfigFile()->getPath());
+		$config['enabled'] = $value;
+		
+		$this->getConfigFile()->putContents("<?php\n\$config = " . var_export($config, true) . ";\n");
+		
+		if(function_exists("opcache_invalidate")) {
+			opcache_invalidate($this->getConfigFile()->getPath());
+		}
+	}
+	
+	public function getEnabled() {
+		if($this->getConfigFile()->exists()) {
+			include($this->getConfigFile()->getPath());
+		
+			return isset($config['enabled']) ? $config['enabled'] : true;
+		} else
+		{
+			return null;
+		}
+	}
 }
