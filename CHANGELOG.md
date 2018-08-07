@@ -1,3 +1,11 @@
+06-08-2018 6.3.30
+- Small UI improvements
+- LDAP bind login uses full DN
+- Refactored login dialog so that Firefox will prompt to save password.
+
+02-08-2018 6.3.29
+- Fixed various small bugs
+
 31-07-2018 6.3.28
 - Bug in installer made it fail on ACL error.
 

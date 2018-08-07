@@ -992,6 +992,7 @@ table.display-panel {
 	clear: both;
 	td, th {
 		padding: dp(8);
+		white-space: nowrap;
 		&:first-child {
 			padding-left: dp(16);
 		}
@@ -999,8 +1000,11 @@ table.display-panel {
 			padding-right: dp(16);
 		}
 	}
+	th {
+		@extend %font-data-head;
+	}
 	tr.line, td.line, th.line {
-		border-top: 1px solid color($fg, 'line');
+		border-bottom: 1px solid color($fg, 'line');
 	}
 	table { 
 		td:first-child {
@@ -1212,5 +1216,11 @@ table[id^="comments-ext"] b {
 	a.show-more {
 		font-style: italic;
 		color: $cAnchor;
+	}
+}
+
+.go-login-dialog {
+	.x-panel-bbar .x-toolbar {
+		border-top: 0;
 	}
 }

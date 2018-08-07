@@ -32,7 +32,7 @@ class Authenticator extends PrimaryAuthenticator {
 	 * @return Server|boolean
 	 */
 	private static function findServer($email) {
-		$adPos = strpos($email, '@');
+		$adPos = strrpos($email, '@');
 		if(!$adPos) {
 			return false;
 		}
@@ -62,14 +62,11 @@ class Authenticator extends PrimaryAuthenticator {
 		
 		if (!empty($server->username)) {			
 			
-			$record = Record::find($connection, $server->peopleDN, $server->usernameAttribute . "=" . $server->username)->fetch();
-			
-			if(!$record) {
-				throw new \Exception("LDAP User '".$server->username."' does not exist.");
-			}
-			
-			if (!$connection->bind($record->getDn(), $server->password)) {				
+			if (!$connection->bind($server->username, $server->password)) {				
 				throw new \Exception("Invalid password given for '".$server->username."'");
+			} else
+			{
+				GO()->debug("Authenticated with user '" . $server->username . '"');
 			}
 		}
 		
