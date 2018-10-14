@@ -26,6 +26,7 @@ function dp(size) {
 (function(){
   
   //add module and package to components so they are aware of the module they belong to.
+	//go.module and go.package are defined in default_scripts.inc.php 
   var origExtend = Ext.extend;
 
   Ext.extend = function() {
@@ -45,11 +46,21 @@ Ext.override(Ext.Component, {
   getId : function(){
  
     if(this.module) {
+			this.lastTranslationModule = go.Translate.module;
+			this.lastTranslationPackage = go.Translate.packate;
       go.Translate.setModule(this.package, this.module);
     }
     
     return this.componentgetID();
   },
+	
+	origInitComponent : Ext.Component.prototype.initComponent,
+	
+	initComponent : function() {
+		this.origInitComponent();
+		
+		go.Translate.setModule(this.lastTranslationPackage, this.lastTranslationModule);
+	},
 	
 	//Without this override findParentByType doesn't work if you don't Ext.reg() all your components
 	 getXTypes : function(){
@@ -656,36 +667,10 @@ Ext.layout.MenuLayout.prototype.itemTpl = new Ext.XTemplate(
 	'</li>'
 );
 
-Ext.override(Ext.data.Field, {
-	dateFormat: "c" //from server
-});
-
-GO.mainLayout.onReady(function() {
-
-		//Override this when authenticated and mainlayout initializes
-		Ext.override(Ext.DatePicker, {
-			startDay: parseInt(GO.settings.first_weekday)
-		});
-
-		Ext.override(Ext.form.DateField, {
-			format: GO.settings.date_format,
-			startDay: parseInt(GO.settings.first_weekday),
-			altFormats: "Y-m-d|c|" + GO.settings.date_format.replace("Y","y"),
-			dtSeparator:' '
-		});
-
-		Ext.override(Ext.grid.DateColumn, {
-			align: "right",
-			format: go.User.dateFormat + " " + go.User.timeFormat
-		});
-	
-});
-
-Ext.override(Ext.Window, {
-	resizable : !GO.util.isMobileOrTablet(),
-	draggable: !GO.util.isMobileOrTablet(),
-	maximized: GO.util.isMobileOrTablet(),
-});
+// Not needed and breaks rss feed reader
+//Ext.override(Ext.data.Field, {
+//	dateFormat: "c" //from server
+//});
 
 Ext.override(Ext.Panel, {
 	panelInitComponent : Ext.Panel.prototype.initComponent,
@@ -693,14 +678,12 @@ Ext.override(Ext.Panel, {
 	initComponent : function() {
 		
 		if(GO.util.isMobileOrTablet()) {
-			this.split = false;
-			
+			this.split = false;			
 		}
 		
 		this.panelInitComponent.call(this);
 	}
 });
-
 
 Ext.override(Ext.form.Field, {
 	fieldInitComponent : Ext.form.Field.prototype.initComponent,

@@ -1,3 +1,5 @@
+/* global GO, Ext, go */
+
 /** 
  * Copyright Intermesh
  * 
@@ -185,7 +187,7 @@ Ext.extend(GO.MainLayout, Ext.util.Observable, {
 		this.tabPanel.items.each(function (p) {
 			var tabEl = this.tabPanel.getTabEl(p);
 
-			if (tabEl.style.display != 'none') {
+			if (tabEl.style.display !== 'none') {
 				openModules.push(p.moduleName);
 			}
 		}, this);
@@ -223,7 +225,7 @@ Ext.extend(GO.MainLayout, Ext.util.Observable, {
 			}
 
 			if (document.activeElement && typeof document.activeElement.blur === 'function')
-				if (document.activeElement.tagName == 'TEXTAREA' || document.activeElement.tagName == 'INPUT') {
+				if (document.activeElement.tagName === 'TEXTAREA' || document.activeElement.tagName === 'INPUT') {
 					document.activeElement.blur();
 				}
 		}, this);
@@ -446,7 +448,6 @@ Ext.extend(GO.MainLayout, Ext.util.Observable, {
 	//			var winSize = [window.scrollWidth , window.scrollHeight];
 
 				GO.viewport = new Ext.Viewport({
-					renderTo: 'viewport',
 					layout: 'border',
 					border: false,
 					items: [topPanel, this.tabPanel]
@@ -515,7 +516,7 @@ Ext.extend(GO.MainLayout, Ext.util.Observable, {
 //						}
 						,{
 							iconCls: 'ic-info',
-							text: t("About GroupOffice"),
+							text: t("About {product_name}"),
 							handler: function () {
 								if (!this.aboutDialog)
 								{
@@ -699,3 +700,6 @@ Ext.extend(GO.MainLayout, Ext.util.Observable, {
 });
 
 GO.mainLayout = new GO.MainLayout();
+
+// needed in pre v6.4
+GO.mainLayout.on('callto', GO.util.callToHandler);

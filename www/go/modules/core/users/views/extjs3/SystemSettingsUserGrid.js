@@ -1,4 +1,6 @@
 
+/* global Ext, go, BaseHref, GO */
+
 /** 
  * Copyright Intermesh
  * 
@@ -27,15 +29,30 @@ go.modules.core.users.SystemSettingsUserGrid = Ext.extend(go.grid.GridPanel, {
 				'displayName',
 				'avatarId',
 				'loginCount',
+				'authenticationMethods',
 				{name: 'createdAt', type: 'date'},
 				{name: 'lastLogin', type: 'date'}	
 			],
+			baseParams: {filter: {}},
 			entityStore: go.Stores.get("User")
 		});
 
-		Ext.apply(this, {		
+		Ext.apply(this, {
 			plugins: [actions],
-			tbar: [ '->', 
+			tbar: [{
+					iconCls: 'ic-people-outline',
+					text: t('Show disabled'),
+					enableToggle:true,
+					toggleHandler: function(btn, state) {
+						if(state) {
+							this.store.baseParams.filter.showDisabled = true;
+						} else {
+							delete this.store.baseParams.filter.showDisabled;
+						}
+						this.store.reload();
+					},
+					scope:this
+			}, '->', 
 				{
 					xtype: 'tbsearch'
 				},{					
@@ -43,6 +60,15 @@ go.modules.core.users.SystemSettingsUserGrid = Ext.extend(go.grid.GridPanel, {
 					tooltip: t('Add'),
 					handler: function (e, toolEl) {
 						var dlg = new go.modules.core.users.CreateUserWizard();
+						dlg.show();
+					}
+				},
+				
+				{
+					iconCls: 'ic-settings',
+					tooltip: t("User defaults"),
+					handler: function() {
+						var dlg = new go.modules.core.users.UserDefaultsWindow();
 						dlg.show();
 					}
 				}
@@ -91,13 +117,30 @@ go.modules.core.users.SystemSettingsUserGrid = Ext.extend(go.grid.GridPanel, {
 					sortable: true,
 					dataIndex: 'loginCount',
 					hidden: false
+				},{
+					header: t('Authentication'),
+					width: dp(100),
+					sortable: false,
+					renderer: function(v) {
+						var result = '';
+						
+						for(var i = 0, method; method = v[i]; i++) {							
+							result += '<i title="'+method.name+'" class="icon go-module-icon-'+method.id+'"></i> ';
+						}
+						return result;
+					},
+					dataIndex: 'authenticationMethods'
 				},
 				actions
 			],
 			viewConfig: {
 				emptyText: 	'<i>description</i><p>' +t("No items to display") + '</p>',
 				forceFit: true,
-				autoFill: true
+				autoFill: true,
+				getRowClass: function(record) {
+					if(!record.json.enabled)
+						return 'x-item-disabled';
+				}
 			},
 			// config options for stateful behavior
 			stateful: true,
@@ -169,7 +212,7 @@ go.modules.core.users.SystemSettingsUserGrid = Ext.extend(go.grid.GridPanel, {
 									//reload client
 									document.location = BaseHref;
 								}
-							})
+							});
 						},
 						scope: this						
 					},
@@ -183,10 +226,52 @@ go.modules.core.users.SystemSettingsUserGrid = Ext.extend(go.grid.GridPanel, {
 							this.deleteSelected();
 						},
 						scope: this						
-					},
+					}
 				]
-			})
+			});
+			
+			
+			if(go.Modules.isAvailable("legacy", "addressbook")) {
+				this.moreMenu.insert(1, {
+					iconCls: "ic-contacts",
+					text: t("Edit contact"),
+					scope: this,
+					handler: function() {
+						GO.request({
+							url: 'addressbook/contact/findForUser',
+							params: {
+								user_id: this.moreMenu.record.id
+							},
+							scope: this,
+							success: function(response, success, result) {
+								if(result.contact_id) {
+									GO.addressbook.showContactDialog(result.contact_id);
+								} else
+								{
+									var u = this.moreMenu.record.data;
+									
+									GO.addressbook.showContactDialog(0, {
+										values: {
+											first_name: u.displayName,
+											email: u.email
+										}
+									});
+									
+									GO.addressbook.contactDialog.formPanel.baseParams.go_user_id = u.id;
+									
+									GO.addressbook.contactDialog.on("hide", function() {
+										delete GO.addressbook.contactDialog.formPanel.baseParams.go_user_id;
+									}, {single: true});
+									
+									
+								}
+							}						
+						});
+					}
+				});
+			}
 		}
+		
 		
 		this.moreMenu.record = record;
 		

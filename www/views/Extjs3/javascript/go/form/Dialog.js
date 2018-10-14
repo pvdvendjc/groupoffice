@@ -17,12 +17,22 @@ go.form.Dialog = Ext.extend(go.Window, {
 	currentId: null,
 	buttonAlign: 'left',
 	layout: "fit",
+	
+	/**
+	 * Redirect to the entity detail view after save.
+	 */
+	redirectOnSave: true,
+	
 	initComponent: function () {
 
 		this.formPanel = new go.form.EntityPanel({
 			entityStore: this.entityStore,
 			items: this.initFormItems()
 		});		
+		
+		this.formPanel.on("save", function(fp, entity) {
+			this.fireEvent("save", this, entity);
+		}, this);
 		
 		this.items = [this.formPanel];
 
@@ -41,6 +51,7 @@ go.form.Dialog = Ext.extend(go.Window, {
 		go.form.Dialog.superclass.initComponent.call(this);
 		
 		this.entityStore.on('changes',this.onChanges, this);
+		
 
 		this.on('destroy', function() {
 			this.entityStore.un('changes', this.onChanges, this);
@@ -71,14 +82,22 @@ go.form.Dialog = Ext.extend(go.Window, {
 		
 		if(changed.concat(added).indexOf(this.currentId) !== -1) {
 			this.actionComplete();
+			this.onLoad();
 		}		
 	},
 
 	delete: function () {
-		this.entityStore.set({destroy: [this.currentId]}, function (options, success, response) {
-			if (response.destroyed) {
-				this.hide();
+		
+		Ext.MessageBox.confirm(t("Confirm delete"), t("Are you sure you want to delete this item?"), function (btn) {
+			if (btn != "yes") {
+				return;
 			}
+			
+			this.entityStore.set({destroy: [this.currentId]}, function (options, success, response) {
+				if (response.destroyed) {
+					this.hide();
+				}
+			}, this);
 		}, this);
 	},
 
@@ -96,7 +115,7 @@ go.form.Dialog = Ext.extend(go.Window, {
 	},
 	
 	onLoad : function() {
-		
+		this.deleteBtn.setDisabled(this.formPanel.entity.permissionLevel < GO.permissionLevels.writeAndDelete);
 	},
 	
 	onSubmit : function() {
@@ -114,8 +133,6 @@ go.form.Dialog = Ext.extend(go.Window, {
 		if (this.getFooterToolbar()) {
 			this.getFooterToolbar().setDisabled(false);	
 		}
-		
-		this.onLoad();
 	},
 	
 	isValid : function() {
@@ -137,10 +154,14 @@ go.form.Dialog = Ext.extend(go.Window, {
 		this.formPanel.submit(function(formPanel, success, serverId) {
 			this.actionComplete();
 			this.onSubmit();
-			if(success) {
+			if(!success) {
+				return;
+			}
+			if(this.redirectOnSave) {
 				this.entityStore.entity.goto(serverId);
-				this.close();
-			}			
+			}
+			this.close();
+						
 		}, this);
 	},
 

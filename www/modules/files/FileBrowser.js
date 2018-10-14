@@ -173,7 +173,7 @@ GO.files.FileBrowser = function(config){
 			header:t("Name"),
 			dataIndex: 'name',
 			renderer:function(v, meta, r){
-				var cls = r.get('acl_id')>0 && r.get('readonly')==0 ? 'folder-shared' : 'filetype filetype-'+r.get('extension');
+				var cls = r.get('acl_id')>0 && r.get('readonly')==0 ? 'filetype filetype-folder-shared' : 'filetype filetype-'+r.get('extension');
 				if(r.get('locked_user_id')>0)
 					v = '<div class="fs-grid-locked">'+v+'</div>';
 
@@ -1002,13 +1002,14 @@ Ext.extend(GO.files.FileBrowser, Ext.Panel,{
 			this.upButton.setDisabled(false);
 		}
 
-		if(this.filePanel.model_id>0 && !store.getById('f:'+this.filePanel.model_id)){
-			this.filePanel.reset();
-		}
-
-		if(this.folderPanel.model_id>0 && !store.getById('d:'+this.folderPanel.model_id)){
-			this.folderPanel.reset();
-		}
+//Don't reset because direct routes won't work anymore.
+//		if(this.filePanel.model_id>0 && !store.getById('f:'+this.filePanel.model_id)){
+//			this.filePanel.reset();
+//		}
+//
+//		if(this.folderPanel.model_id>0 && !store.getById('d:'+this.folderPanel.model_id)){
+//			this.folderPanel.reset();
+//		}
 
 	},
 
@@ -1708,8 +1709,8 @@ Ext.extend(GO.files.FileBrowser, Ext.Panel,{
 								this.overwriteDialog.render(Ext.getBody());
 							}
 
-							var t = new Ext.Template(t("Do you wish to overwrite the file '{file}'?"));
-							t.overwrite(this.overwriteDialog.body, {
+							var tpl = new Ext.Template(t("Do you wish to overwrite the file '{file}'?"));
+							tpl.overwrite(this.overwriteDialog.body, {
 								file: responseParams.fileExists
 							});
 							this.overwriteDialog.show();
@@ -2135,7 +2136,13 @@ go.Modules.register("legacy", 'files', {
 	mainPanel: GO.files.FileBrowser,
 	title: t("Files", "files"),
 	iconCls: 'go-tab-icon-files',
-	entities: ["File", "Folder"],
+	entities: [{
+			name: "File",
+			linkable: true
+	}, {
+		name: "Folder",
+		linkable: true
+	}],
 	initModule: function () {	
 		
 	}

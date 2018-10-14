@@ -1,8 +1,9 @@
+<?php $lang = GO::language()->getLanguage(); ?>
 <!DOCTYPE html>
-<html>
+<html lang="<?php echo $lang; ?>">
 <head>
-	<?php GO::router()->getController()->fireEvent('headstart'); ?>
-	<meta name="viewport" content="width=device-width, initial-scale=1.0">
+	<?php GO::router()->getController()->fireEvent('headstart'); ?>	
+	<meta name="viewport" content="width=device-width, initial-scale=1">
 	<meta name="HandheldFriendly" content="true"/> 
 
 	<meta content="text/html; charset=UTF-8" http-equiv="Content-Type" />
@@ -26,12 +27,11 @@
 	<meta name="theme-color" content="#ffffff">
 
 	<title><?php echo \GO::config()->title; ?></title>
+	
 	<link href="<?=\GO::view()->getUrl()?>themes/Paper/style.css" media="screen and (min-device-width:1201px)" type="text/css" rel="stylesheet" />
-	<link href="<?=\GO::view()->getUrl()?>themes/Paper/flags/flags.min.css" media="screen and (min-device-width:1201px)" type="text/css" rel="stylesheet" />
 	<link rel="stylesheet" type="text/css" media="screen and (max-device-width:1200px)" href="<?=\GO::view()->getUrl()?>themes/Paper/style-mobile.css" />
-	
-	
 	<link href="<?=\GO::view()->getUrl()?>css.php" type="text/css" rel="stylesheet" />
+	
 	<?php
 	if(!empty(\GO::config()->custom_css_url))
 		echo '<link href="'.\GO::config()->custom_css_url.'" type="text/css" rel="stylesheet" />';
@@ -57,9 +57,8 @@
 </head>
 <body>
 	<div id="sound"></div>
-
+	<div id="window-container"></div>
 	<?php require(\GO::config()->root_path.'views/Extjs3/default_scripts.inc.php'); ?>
-
 	<script type="text/javascript">GO.util.density = GO.util.isMobileOrTablet() ? 160 : 140;</script>
 </body>
 </html>

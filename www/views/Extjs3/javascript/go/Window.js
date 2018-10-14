@@ -1,12 +1,19 @@
 go.Window = Ext.extend(Ext.Window, {
 	
-	constrainHeader : true,
-	
-//	showAnimDuration: 0.16,
-//	hideAnimDuration: 0.16,
-	
+	constrainHeader : true,	
+	resizable : !GO.util.isMobileOrTablet(),
+	draggable: !GO.util.isMobileOrTablet(),
+	maximized: GO.util.isMobileOrTablet(),
 	
 	initComponent : function(){
+		
+		//make sure window fits screen
+		if(this.width && this.width > window.innerWidth) {
+			this.width = window.innerWidth - dp(32);
+		}		
+		if(this.height && this.height > window.innerHeight) {
+			this.height = window.innerHeight	- dp(32);
+		}
 		
 		go.Window.superclass.initComponent.call(this);
 		
@@ -41,10 +48,10 @@ go.Window = Ext.extend(Ext.Window, {
   },
 		
 	autoSize : function(){
-		if(!this.maximized && GO.viewport){
+		if(!this.maximized){
 
-			var vpH=GO.viewport.getEl().getHeight();
-			var vpW=GO.viewport.getEl().getWidth();
+			var vpW = window.innerWidth;
+			var vpH = window.innerHeight;
 
 			if (this.getHeight() > vpH){
 				this.setHeight(vpH * .9);
@@ -59,5 +66,10 @@ go.Window = Ext.extend(Ext.Window, {
 			if(pos[0]<0 || pos[0]+this.width>vpW || pos[1]<0 || pos[1]+this.height>vpH)
 				this.center();
 		}
+	},
+	
+	render : function(container, position){
+		container = Ext.get("window-container");
+		return go.Window.superclass.render.call(this, container, position);
 	}
 });

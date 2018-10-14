@@ -39,4 +39,5 @@ if ($blob->save()) {
 	]);
 } else {
 	echo 'Could not save '.$blob->id;
+	print_r($blob->getValidationErrors());
 }

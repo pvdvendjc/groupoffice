@@ -66,12 +66,12 @@ Ext.extend(GO.DisplayPanel, Ext.Panel,{
 	showComments: true,
 	
 	createTopToolbar : function(){
-		
-		this.newMenuButton = new GO.NewMenuButton({
-			panel:this
-		});
-		
-		
+//		
+//		this.newMenuButton = new GO.NewMenuButton({
+//			panel:this
+//		});
+//		
+//		
 		
 		var tbar=['->'];
 		
@@ -120,14 +120,18 @@ Ext.extend(GO.DisplayPanel, Ext.Panel,{
 			}), 
 			
 		
-		new go.detail.addButton({			
-			detailPanel: this
+		this.addButton = this.newMenuButton = new go.detail.addButton({			
+			detailView: this
 				})
 		);
 
 		this.moreButton = new Ext.Button({
 			iconCls: 'ic-more-vert',
 			menu:[
+				{
+					xtype: "linkbrowsermenuitem"
+				},
+				'-',
 				{            
 					iconCls: "ic-print",
 					
@@ -144,6 +148,13 @@ Ext.extend(GO.DisplayPanel, Ext.Panel,{
 				}
 			]
 		});
+		
+		
+		if(go.Modules.isAvailable("legacy", "files")) {
+			this.moreButton.menu.insert(1,{
+				xtype: "filebrowsermenuitem"
+			});
+		}
 		
 		tbar.push(this.moreButton);
 
@@ -220,7 +231,8 @@ Ext.extend(GO.DisplayPanel, Ext.Panel,{
 		}
 		
 		if (this.showLinks) {
-            this.add(new go.links.LinksDetailPanel());
+			
+			this.add(go.links.getDetailPanels());
 		}
 
 		if(go.Modules.isAvailable("legacy", "files")) {

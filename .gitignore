@@ -9,6 +9,7 @@
 /config.ini
 /www/config.ini
 /www/promodules
+/www/duurzaamgebouw
 /tests/data
 /www/go/modules/*
 !/www/go/modules/community
@@ -66,3 +67,6 @@
 !/www/modules/webodf
 .DS_Store
 .sass-cache
+www/billing-6.3-license.txt
+www/documents-6.3-license.txt
+www/groupoffice-pro-6.3-license.txt

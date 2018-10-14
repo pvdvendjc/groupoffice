@@ -36,6 +36,12 @@
   -moz-osx-font-smoothing: grayscale; // Support for Firefox.
   font-feature-settings: 'liga'; // Support for IE
 }
+i.icon {
+	@extend %icon;
+	background-size: contain;
+	width:dp(24);
+	height: dp(24);
+}
 .email-grid-icon {
 	@extend %icon;
 	background-position: -100px;
@@ -293,6 +299,8 @@ $filetype: (
 	null: link,
 	eml: eml,
 	folder: folder,
+	folder_shared: folder-shared,
+	folder_special: folder-special,
 	image: (jpeg, jpg, gif, bmp, tif, png, tiff),
 	svg: svg,
 	pdf: pdf,
@@ -337,6 +345,7 @@ $filetype: (
 		white-space: nowrap;		
 		padding-left: dp(24);
 		line-height: dp(24);
+		margin: dp(8) 0;
 		display: inline-block;
 	}
 }
@@ -1302,7 +1311,7 @@ $material-icons : (
 .go-icon-cross .x-grid3-cell-inner{
 	&:before {
 		@extend %icon;
-		content: 'delete';
+		content: 'close';
 		margin-right: dp(8);
 	}
 }

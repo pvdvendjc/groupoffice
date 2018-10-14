@@ -34,15 +34,13 @@ function isValidDb() {
 					->selectSingleValue('count(*)')
 					->from('go_modules')
 					->where('id', 'in', ['customfields', 'search'])
+					->andWhere('enabled', '=', true)
 					->single() != 2) {
-		throw new \Exception("You've got a 6.2 database but you must install the modules 'customfields' and 'search' before upgrading.");
+		throw new \Exception("You've got a 6.2 database but you must install / enable the modules 'customfields' and 'search' before upgrading.");
 					}
 					
 	return 62;	
 }
-
-
-//TODO check all modules for availability and license.
 
 function checkLicenses($is62 = false) {	
 	if($is62) {
@@ -298,7 +296,7 @@ try {
 	
 	if(checkLicenses($dbValid == 62)) {
 	
-		if ($dbValid == 62) {		
+		if ($dbValid == 62) {					
 			require(Environment::get()->getInstallFolder() . '/install/62to63.php');
 		}
 

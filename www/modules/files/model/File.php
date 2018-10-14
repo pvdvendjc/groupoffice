@@ -179,7 +179,7 @@ class File extends \GO\Base\Db\ActiveRecord implements \GO\Base\Mail\SwiftAttach
 
 	public function getJsonData() {
 			$data =  array(
-					'id' => $this->model_id,
+					'id' => $this->id,
 					'name' => $this->path,
 					'ctime' => \GO\Base\Util\Date::get_timestamp($this->ctime),
 					'mtime' => \GO\Base\Util\Date::get_timestamp($this->mtime),
@@ -544,6 +544,11 @@ class File extends \GO\Base\Db\ActiveRecord implements \GO\Base\Mail\SwiftAttach
 		$log = parent::log($action, false, $modifiedCustomfieldAttrs);
 		if(empty($log))
 			return false;
+		
+		if($log === true) {
+			return true;
+		}
+		
 		if($log->action=='update') {
 			$log->action = 'propedit';
 			if($log->object->isModified('folder_id'))
@@ -553,7 +558,7 @@ class File extends \GO\Base\Db\ActiveRecord implements \GO\Base\Mail\SwiftAttach
 				$log->message = $log->object->getOldAttributeValue('name') . ' > ' . $log->message;
 			}
 		}
-		return $log->save();
+		return $save ? $log->save() : $log;
 	}
 
 	/**
@@ -729,8 +734,7 @@ class File extends \GO\Base\Db\ActiveRecord implements \GO\Base\Mail\SwiftAttach
 
 
 	public function findRecent($start=false,$limit=false){
-		$storeParams = \GO\Base\Db\FindParams::newInstance()->ignoreAcl();
-
+		$storeParams = \GO\Base\Db\FindParams::newInstance();
 
 		$joinSearchCacheCriteria = \GO\Base\Db\FindCriteria::newInstance()
 					->addRawCondition('`t`.`id`', '`sc`.`entityId`')

@@ -1,3 +1,100 @@
+- ATTENTION: System settings need attention for default user groups and group visibility.
+- Core: Group and user defaults are sub dialogs in system settings. 
+- Core: Group visibility defaults can be configured and reset.
+- Core: Cleanup user data in old framework when user is deleted
+- Core: Added new preference to show long or short dates in lists.
+- Core: Fixed URL detection when server is behind proxy or rewriting rules.
+- Core: Small UI enhancements
+
+09-10-2018 6.3.42
+- Core: Search index script will index only missing results.
+- Core: Brought back the Link browser. Improved links display.
+- Core: Prevent core modules from being disabled with config['allowed_modules']
+- Updated German translation
+- Core: added icon to permissions panel to distinguish users and groups
+
+04-10-2018 6.3.41
+- Core: Error in lock function
+
+04-10-2018 6.3.40
+- Core: Added "Edit contact" in more menu at System settings -> Users to connect a contact to a user.
+- Core: Remove non existing groups from ACL on upgrade
+- Core: Added a more detailed error message to the Lock->lock() function in case the .lock file cannot be created
+- Core: Don't redirect to entity detail view after creating new link
+- Tickets: Fixed issue that a ticket agent did not get a correct formatted message.
+- Files: Changed "public folder" icon in grid.
+- Core: Fixed tabs in user settings menu
+- Core: Fixed issue with generating XLS file reports in Projects2
+- Core: Translation in some parts were not working correctly.
+- Core: Convert tables to InnoDB before upgrade if necessary
+- Customfields: removed maxlength of 190 characters on textareas
+
+25-09-2018 6.3.39
+- Core: merged 6.2.105
+- Files: File custom field didn't load and save
+- Core: Translations can be exported and imported as CSV file
+- Core: Cron jobs don't deactivate on error anymore
+- Billing: Fixed search query to work with amounts and numbers in regular fields
+
+18-09-2018 6.3.38
+- Core: Links didn't show when you didn't have access to one of them.
+- Projects: Fixed double icon in tree
+- Files: Fixed undefinded index "deleteSuccess" error.
+- Files: Add "Browse x files" button in detail views
+- Core: Better error message when language is invalid and fixed Norwegian
+- Core: Make sure customfields and search module are installed and enabled before upgrade
+- Core: Merged 6.2.104
+
+11-09-2018 6.3.37
+- Start page: RSS date was not showing
+- Core: Fixed errors in check database and rebuild search index.
+- Core: Global search sometimes didn't give results.
+- File search: File index aborted on error
+- Files: fixed search returning invalid id's and file property dialog from search
+- Merged 6.2.x branch
+- Address book: Batch edit problem in address book
+- Address book: Drag and drop contacts didn't work
+- Leavedays: Sort on employee in holidays module
+- Fixed google authenticator barcode for iOS
+- Support newer encryption library in notes
+- Fixed custom php field
+
+30-08-2018 6.3.36
+- Fixed loading error in group edit dialog
+
+30-08-2018 6.3.35
+- addressbook: fixed merge dialog
+- files: shared root folder will be seen when there parent is not accessible by the current user
+- users: the list filters disabled users by default.
+- users: searching while filtering will work together
+- favorites: will not be rendered when there is no permission.
+- dav: Performance optimizations
+- core: User icon didn't show when selecting a contact / user.
+- billing: Billing report filter didn't work
+- files: fix acl in recent files portlet
+- sync: Require sync module access for activesync
+- projects: added natural sort to project name
+- core: added expression support to ActiveRecord order clause
+- addressbook: fixed advance search with custom fields
+- core: fixed change password in user settings
+
+23-08-2018 6.3.34
+- Fixed broken XLS export
+- Updated Z-push to 2.4.4
+- ActiveSync, Cal-,Card- and WebDAV use new framework for authentication so that IMAP and LDAP authentication work
+- Users: added disabled filter and color to show disabled users
+- User: added column to see which authentication methods are configured
+- Goolge authenticator enable/disable fixed when logged in as Admin
+- Framework Customfield:getAttributeByName() function fixed
+- Dokuwiki module compatible with 6.3
+- Users grid has disabled filter and shows disabled users lighter
+
+09-08-2018 6.3.31
+- Changed install SQL for notes as it failed to rename a column with a key on some systems
+- Delete buttons in dialog work
+- Delete option added in more menu of grid and detail view in notes.
+- Removed old z-push install dir.
+
 06-08-2018 6.3.30
 - Small UI improvements
 - LDAP bind login uses full DN
