@@ -636,6 +636,10 @@
 	border: 1px solid color($fg, "line");
 	color: inherit;
 	transition: background-color 225ms linear, box-shadow 225ms $curve-standard;
+	
+	button {
+		min-height: dp(32);
+	}
 
 	&.x-item-disabled {
 		.x-btn-text {
@@ -1078,7 +1082,7 @@
 		}
 	}
 	&-cell-inner, &-hd-inner {
-		@extend %ellipsis;
+		@extend .ellipsis;
 		min-height: dp(40);
 		padding: dp(10) dp(4) dp(10) dp(16); // 10 top = middle of row line-height 20dp
 		.ux-row-action-cell & {
@@ -1464,13 +1468,37 @@ td.grid-hd-group-cell {
 .x-tree{
 	&-node-el {
 		padding: dp(8);
+		padding-right: 0;
+		display: table;
+		width: 100%;
+	}
+	&-node-indent {
+		width:0.01%;
+		white-space:nowrap;
+	}
+	&-node-icon {
+		background-size: contain;
+		background-repeat: no-repeat;
+		background-position: center center;	
+	}
+	&-ec-icon, &-node-indent,&-ec-icon,&-node-icon, &-node-anchor, &-node-cb {
+		display:table-cell;
+		vertical-align: top; //required for Firefox
+	}
+	&-node-cb {
+		padding: 0 dp(4);
+	}
+	&-node-anchor {
+		width:auto;
+		overflow:hidden;
+		position:relative;
 	}
 	&-ec-icon {
 		z-index:1;
 	}
 	&-ec-icon, &-node-icon {
 		position:relative;
-		display:inline-block;
+		//display:inline-block;
 		&::before {
 			@extend %icon;
 			color: color($fg, 'icon');
@@ -1490,7 +1518,7 @@ td.grid-hd-group-cell {
 		.x-tree-elbow-end-minus,
 		.x-tree-elbow-end-plus,
 		.x-tree-elbow-line {
-			width: dp(24);
+			min-width: dp(24);
 		}
 	}
 	&-node {
@@ -1510,7 +1538,16 @@ td.grid-hd-group-cell {
 	}
 }
 .x-tree-node a span, .x-dd-drag-ghost a span {
-	padding: dp(8);
+	@extend .ellipsis;
+	padding: 0 dp(8);
+	display:block;
+	top:0;
+	left:0;
+	right:0;
+	position:absolute;
+	> * {
+		pointer-events: none;
+	}
 }
 .x-tree-node .x-tree-drag-append a span {
     background-color: $cHover;
@@ -1518,9 +1555,7 @@ td.grid-hd-group-cell {
 }
 
 .x-tree-node .x-tree-node-inline-icon:not(.go-icon) {
-	display: inline-block;
    background-image: none;
-	 background-size: contain;
 }
 
 .x-tree-node-loading a span{
@@ -2159,6 +2194,7 @@ $menuScrollerSize : dp(4);
 
 .x-panel-ghost {
 	@extend .z24;
+	visibility:visible;
 	background-color:white;
 }
 
@@ -2241,8 +2277,15 @@ body.x-body-masked .x-window-plain .x-window-mc {
 	border:1px solid color($fg, 'divider');
 }
 .x-html-editor-tb .x-toolbar {
-	box-shadow:none;
+	height: dp(40);
 	background-color: transparent;
+	.x-toolbar-cell {
+		padding:0;
+	}
+	.x-btn {
+		font-size:.8em;
+	}
+	
 }
 .x-html-editor-tb .x-btn-text {
 	background-image: none; //url(wysiwyg.gif);

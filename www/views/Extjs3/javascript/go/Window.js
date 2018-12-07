@@ -46,6 +46,16 @@ go.Window = Ext.extend(Ext.Window, {
 			 }
 		}
   },
+	
+	hide : function() {				
+		//Fix for ticket #201817154. Unclosable window remained when window was 
+		//hidden after submit while being dragged.
+		if (this.activeGhost) {
+		 this.unghost();
+		}
+		
+		go.Window.superclass.hide.call(this);
+	},
 		
 	autoSize : function(){
 		if(!this.maximized){
@@ -66,10 +76,5 @@ go.Window = Ext.extend(Ext.Window, {
 			if(pos[0]<0 || pos[0]+this.width>vpW || pos[1]<0 || pos[1]+this.height>vpH)
 				this.center();
 		}
-	},
-	
-	render : function(container, position){
-		container = Ext.get("window-container");
-		return go.Window.superclass.render.call(this, container, position);
 	}
 });

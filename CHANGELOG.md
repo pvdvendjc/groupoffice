@@ -1,3 +1,118 @@
+- Billing: Fixed loading address data when opening Orderdialog from contact (link)
+- Files: Copy custom field settings too when copying folders
+- Core: moving a folder failed when on different volumes
+
+04-12-2018 6.3.56
+- Core: Switch user was broken
+
+03-12-2018 6.3.55
+- Holidays: fix in copy holidays from last year
+- Core: Always join customfields when joinCustomFields is set. because this is a core module now.
+- DAV: 'host' property used for DAV baseUri
+- Files: Creating folder in shared folder will not make you the owner anymore
+- Addressbook: fixed birthday portlet on start page
+- Addressbook: fixed importing contacts without type (works for vcard property groups)
+- Core: GO::config() will use 'host' from config.php if it is specified
+- Core: Fixed session reset problem (Export and Smime)
+- Calendar: Fixed link creating when adding event to another item
+- Core: Checkbox in tree panels never fired "checked" on checkchange.
+- Core: Fix for ticket #201817154. Unclosable window remained when window was 
+  hidden after submit while being dragged
+
+26-11-2018 6.3.54
+- Files: Fixed issue that files could not be deleted when a search is active.
+- Core: Merging of globalconfig.inc.php failed when config array was defined as array();
+- Core: Incorrect quota error message
+- Core/Calendar/Tasks: Add recurrence fieldset to the core and apply to the calendar and task module.
+- Webdav: Added an ignore for Microsoft Office lock files
+
+20-11-2018 6.3.53
+- Core: Number conversion error on some systems
+- Core: Fix in ExtJS for new browser spec where FormElement.action would no longer be empty
+- Holidays: Fix for creating an empty workweek when none exists yet
+- Email: New base64 encoding function for unicode ascii character in mail folder names
+- Core: Added support for icon style in MenuItems with property iconStyle: cssProps
+- VCard: Fix import of phone number without a type are within a vcard group
+- Core: Numberfield broken when loaded before render
+- Tickets: First message content was not set on ticket when importing from imap 
+  making {MESSAGE} unavailable in templates
+- Files: Recent file didn't show files from folders without ACL id
+- Files: Fixed shares folder with complex sharing structures
+
+16-11-2018 6.3.52
+- Core: Check if createdBy or modifiedBy is set in detail panel to avoid crash
+- Core: Delete contact didn't work
+
+15-11-2018 6.3.51
+- Core: upgrade broke all passwords. If your password break again after this 
+        upgrade then move /var/lib/groupoffice/defuse-crypto.txt to 
+        /home/groupoffice/defuse-crypto.txt
+- Notes: Removed adding createdBy in init of the Notebook entity. 
+				 This causes issues when creating an instance of the object when no user is logged in.
+- Core: Implemented domain combo box with default setting on login screen so
+				LDAP and IMAP authenticator users can logon without entering the domain.
+- Core: Added delete buttons in more menu of authentication grids
+- Core: Prevent duplicate key errors in core_entity in 6.2 to 6.3 upgrade.
+
+12-11-2018 6.3.50
+- Language: Updated Hungarian
+- CreateLinkButton: fixed issue that reset did not clear the new added items.
+- Multi instance: Storage and user quota can be set in multi instance module
+- Multi instance: Trials will be deactivated after 30 days
+- Multi instance: Possible to set welcome message on start page via API
+- Multi instance: copy system settings from manager to new instance
+
+08-11-2018 6.3.49
+- Merged 6.2 fixes
+- Use globalconfig.inc.php in new framework too. (Thanks to pvdvendjc)
+- Core: fixed issue with GO62 to GO63 update in combination with modules that are already refactored.
+- Core: Added QR code generator
+- Googleauthenticator: Use the QR code generator to generate the GA QR code
+- Webdav: Fixed Webdav quota information
+
+30-10-2018 6.3.48
+- Demodata: Fixed demo data module that kept asking to add data
+- Calendar: Fixed bug when clicking on grid created appointment on the wrong day
+- Core: Fixed ZIP file bug with utf8 characters in filenames
+- Core: Added Create link button to email composer, task, note and event dialog.
+- Core: Fixed issue with form loading while it was not yet rendered. 
+				(Fixes loading of the user settings dialog when accessing it from the users grid.)
+
+30-10-2018 6.3.47
+- Googleauthenticator: Improved setup of authenticator
+- Files: Added quota panel to user settings.
+- Projects: Fix in working week for calculating task due dates.
+- Core: Removed double slash in API endpoints
+- Email: Fixed email folder subscribtion treeview
+- Notes: Textarea high will grow when resizing the dialog
+- Core: Language fix for legacy modules
+- Core: Fixed treeview for Internet Explorer
+- Core: HTMLEditor button are small so more would fit on screen
+- Core: Rebuild search cache skipped every 100 records.
+- Core: All search terms must match instead of any
+- Core: Short date format also use days of the week in text for last week
+- Core: Fix for some components not translating
+- Core: Updated languages Magyar and Bahasa Indonesia
+- Projects: Bug in jobs fixed where save didn't work
+- Core: core/email: Fixed bug in creating ZIP files with utf-8 characters
+- Core: More human friendly error messages
+
+23-10-2018 6.3.46
+- Core: Fixed tree view for Firefox
+
+23-10-2018 6.3.45
+- Debian package uses apache maintainer scripts for enabling and disabling the config.
+
+23-10-2018 6.3.44
+- Projects: added default columns that are on screen to time registration export
+- Core: Improved search algorithm for new entities (Notes, Users and groups)
+- Core: Find user groups on display name
+- Core: Set cookie with far future expiry date to remember language after browser close
+- Core: added CreatedModifiedBy display panel template.
+- Contacts: added created/modified koloms to contact and company grid
+- Projects2: Fixed display and format of the external rates. Caused issues when default rates were set.
+
+15-10-2018 6.3.43
 - ATTENTION: System settings need attention for default user groups and group visibility.
 - Core: Group and user defaults are sub dialogs in system settings. 
 - Core: Group visibility defaults can be configured and reset.
@@ -5,6 +120,7 @@
 - Core: Added new preference to show long or short dates in lists.
 - Core: Fixed URL detection when server is behind proxy or rewriting rules.
 - Core: Small UI enhancements
+- Email: Linked emails with attachments having identical names always opened the first attachment.
 
 09-10-2018 6.3.42
 - Core: Search index script will index only missing results.

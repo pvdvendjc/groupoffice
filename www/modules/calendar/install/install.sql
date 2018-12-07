@@ -193,7 +193,7 @@ CREATE TABLE IF NOT EXISTS `cal_participants` (
 DROP TABLE IF EXISTS `cal_settings`;
 CREATE TABLE IF NOT EXISTS `cal_settings` (
   `user_id` int(11) NOT NULL,
-  `reminder` int(11) NOT NULL DEFAULT '0',
+  `reminder` int(11) NULL DEFAULT NULL,
   `background` char(6) NOT NULL DEFAULT 'EBF1E2',
   `calendar_id` int(11) NOT NULL DEFAULT '0',
   `show_statuses` BOOLEAN NOT NULL DEFAULT TRUE,
@@ -329,3 +329,5 @@ CREATE TABLE IF NOT EXISTS `su_visible_calendars` (
   `calendar_id` int(11) NOT NULL,
   PRIMARY KEY  (`user_id`,`calendar_id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+
+ALTER TABLE `cal_calendars` ADD INDEX(`user_id`);

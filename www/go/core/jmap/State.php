@@ -16,9 +16,9 @@ class State extends AbstractState {
 			return false;
 		}
 		preg_match('/Bearer (.*)/', $auth, $matches);
-    if(!isset($matches[1])){
-      return false;
-    }
+		if(!isset($matches[1])){
+			return false;
+		}
 		
 		return $matches[1];
 	}
@@ -64,9 +64,9 @@ class State extends AbstractState {
 		return $this->token;
 	}
   
-  public function setToken(Token $token) {
-    $this->token = $token;
-  }
+	public function setToken(Token $token) {
+		$this->token = $token;
+	}
 	
 	public function isAuthenticated() {
 		return $this->getToken() !== false;
@@ -77,17 +77,25 @@ class State extends AbstractState {
 	 * Called when the user makes an authenticated GET request
 	 */
 	public function outputSession() {		
-		Response::get()->output($this->getSession());
-	}
-  
-  public function getSession() {
-    if (!$this->isAuthenticated()) {
-			throw new \go\core\http\Exception(401);
+		
+		if (!$this->isAuthenticated()) {
+			Response::get()->setStatus(401);
+			Response::get()->output([
+					"auth" => [
+							"domains" => User::getAuthenticationDomains()
+					]
+			]);
+		} else
+		{
+			Response::get()->output($this->getSession());
 		}
+	}
+
+	public function getSession() {	
 		
 		$settings = \go\modules\core\core\model\Settings::get();
 		
-    $user = $this->getToken()->getUser();
+		$user = $this->getToken()->getUser();
 		$response = [
 			'username' => $user->username,
 			'accounts' => ['1'=> [
@@ -96,17 +104,20 @@ class State extends AbstractState {
 				'isReadOnly' => false,
 				'hasDataFor' => []
 			]],
+			"auth" => [
+						"domains" => User::getAuthenticationDomains()
+			],
 			'capabilities' => Capabilities::get(),
-			'apiUrl' => $settings->URL.'/jmap.php',
-			'downloadUrl' => $settings->URL.'/download.php?blob={blobId}',
-			'uploadUrl' => $settings->URL.'/upload.php',
-			'eventSourceUrl' => $settings->URL.'/sse.php',
-      'user' => $user->toArray(),
+			'apiUrl' => $settings->URL.'jmap.php',
+			'downloadUrl' => $settings->URL.'download.php?blob={blobId}',
+			'uploadUrl' => $settings->URL.'upload.php',
+			'eventSourceUrl' => $settings->URL.'sse.php',
+			'user' => $user->toArray(),
 			'oldSettings' => $this->clientSettings(), // added for compatibility
 		];
-    
-    return $response;
-  }
+
+		return $response;
+	}
 	
 	private function clientSettings() {
 		$user = \GO::user();

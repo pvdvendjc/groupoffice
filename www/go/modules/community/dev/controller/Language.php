@@ -127,6 +127,10 @@ class Language extends Controller {
 					fputcsv($this->handle, $fields, self::DELIMITER, self::ENCLOSURE);
 				}
 			} else {
+				
+				if(!is_scalar($translated)) {
+					throw new \Exception("Invalid language in ".$package."/".$module.": ".$string);
+				}
 				$fields = [
 						$package,
 						$module,
@@ -162,7 +166,7 @@ class Language extends Controller {
 			throw new \Exception("Invalid CSV file (Header count != 5): First record: ".var_export($headers, true));
 		}
 
-		$lang = $headers[3];
+		$lang = strtolower($headers[3]);
 
 		$data = [];
 

@@ -92,7 +92,7 @@ $updates["201804042007"][] = "delete  FROM `core_search` WHERE entityTypeId not 
 $updates["201804042007"][] = "ALTER TABLE `core_search` ADD FOREIGN KEY (`entityTypeId`) REFERENCES `core_entity`(`id`) ON DELETE CASCADE ON UPDATE RESTRICT;";
 
 $updates["201804062007"][] = "ALTER TABLE `core_entity`  ADD `clientName` VARCHAR(190) NULL DEFAULT NULL;";
-$updates["201804062007"][] = "update `core_entity` set clientName = name;";
+$updates["201804062007"][] = "update `core_entity` set clientName = name WHERE clientName is null";
 $updates["201804062007"][] = "ALTER TABLE `core_entity` ADD UNIQUE(`clientName`);";
 
 $updates["201804062008"][] = "CREATE TABLE `core_blob` (
@@ -232,5 +232,22 @@ $updates["201810111129"][]="ALTER TABLE `core_group_default_group`
 $updates["201810111129"][] = "INSERT INTO `core_group_default_group` (`groupId`) VALUES (2);";
 
 $updates["201810111129"][] = "ALTER TABLE `core_user` ADD `shortDateInList` BOOLEAN NOT NULL DEFAULT TRUE AFTER `dateFormat`;";
+$updates["201810251129"][] = "TRUNCATE TABLE go_state"; //for fixed date columns
+
+$updates["201811020837"][] = "ALTER TABLE `core_user` CHANGE `firstWeekday` `firstWeekday` TINYINT(4) NOT NULL DEFAULT '1';";
 
 
+$updates['201811020837'][] = function() {
+	foreach(GO\Customfields\Model\Field::model()->find() as $field) {
+		if(preg_match("/\s+/", $field->databaseName)) {
+				
+			$field->databaseName = $stripped = preg_replace('/\s+/', '_', $field->databaseName);
+			$i = 1;
+			$tableName = $field->category->customfieldsTableName();
+			while(\go\core\db\Table::getInstance($tableName)->hasColumn($field->databaseName)) {
+				$field->databaseName = $stripped .'_' .$i++;
+			}
+			$field->save();
+		}
+	}
+};

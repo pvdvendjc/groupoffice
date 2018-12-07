@@ -671,11 +671,12 @@ Settings -> Accounts -> Double click account -> Folders.", "email");
 
 	private function _createAutoLinkTagFromParams($params, $account){
 		$tag = '';
-		if (!empty($params['link'])) {
-			$linkProps = explode(':', $params['link']);
-			//$model = GO::getModel($linkProps[0])->findByPk($linkProps[1]);
-
-			$tag = $this->_createAutoLinkTag($account,$linkProps[0],$linkProps[1]);
+		if (!empty($params['links'])) {
+			$links = json_decode($params['links'], true);
+			
+			foreach($links as $link) {			
+				$tag .= $this->_createAutoLinkTag($account,$link['toEntity'],$link['toId']);
+			}
 		}
 		return $tag;
 	}
@@ -1749,8 +1750,9 @@ Settings -> Accounts -> Double click account -> Folders.", "email");
 //				if($imapMessage->account->id == $tag['account_id']){
 					try{
 						$linkModel = \GO\Savemailas\SavemailasModule::getLinkModel($tag['model'], $tag['model_id']);
-					
-						if($linkModel && $linkedModels->findKeyBy(function($i) use($linkModel) { return $linkModel->equals($i); })){
+
+						if($linkModel && !$linkedModels->findKeyBy(function($i) use($linkModel) { return $linkModel->equals($i); })){
+							
 							\GO\Savemailas\Model\LinkedEmail::model()->createFromImapMessage($imapMessage, $linkModel);
 
 							$linkedModels[]=$linkModel;
@@ -2241,8 +2243,9 @@ Settings -> Accounts -> Double click account -> Folders.", "email");
 		$tmpFolder = \GO\Base\Fs\Folder::tempFolder(uniqid(time()));
 		$atts = $message->getAttachments();
 		while($att=array_shift($atts)){
-			if(empty($att->content_id))
+			if($att->disposition == 'attachment') {
 				$att->saveToFile($tmpFolder);
+			}
 		}
 
 		$archiveFile = $tmpFolder->parent()->createChild(GO::t("Attachments", "email").'.zip');

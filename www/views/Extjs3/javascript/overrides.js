@@ -40,44 +40,67 @@ function dp(size) {
 })();
 
 
-//hack to set translate to module from component in getId because getId() is always called before initComponent in the constructor and there's no way to override the constructor
-Ext.override(Ext.Component, {  
-  componentgetID : Ext.Component.prototype.getId,
-  getId : function(){
- 
-    if(this.module) {
-			this.lastTranslationModule = go.Translate.module;
-			this.lastTranslationPackage = go.Translate.packate;
-      go.Translate.setModule(this.package, this.module);
-    }
-    
-    return this.componentgetID();
-  },
+(function() {
 	
-	origInitComponent : Ext.Component.prototype.initComponent,
-	
-	initComponent : function() {
-		this.origInitComponent();
-		
-		go.Translate.setModule(this.lastTranslationPackage, this.lastTranslationModule);
-	},
-	
-	//Without this override findParentByType doesn't work if you don't Ext.reg() all your components
-	 getXTypes : function(){
-        var tc = this.constructor;
-        if(!tc.xtypes){
-            var c = [], sc = this;
-            while(sc){
-                c.unshift(sc.constructor.xtype);
-                sc = sc.constructor.superclass;
-            }
-            tc.xtypeChain = c;
-            tc.xtypes = c.join('/');
-        }
-        return tc.xtypes;
-    }
-});
+	var componentInitComponent = Ext.Component.prototype.initComponent;
 
+	Ext.override(Ext.Component, {  
+			
+
+		initComponent : function() {
+			componentInitComponent.call(this);			
+
+			if(this.entityStore) {
+				this.initEntityStore();
+			}
+		},
+		
+		initEntityStore : function() {
+			if(Ext.isString(this.entityStore)) {
+				this.entityStore = go.Stores.get(this.entityStore);
+				if(!this.entityStore) {
+					throw "Invalid 'entityStore' property given to component"; 
+				}
+			}
+			
+			this.on("afterrender", function() {
+				this.entityStore.on('changes',this.onChanges, this);		
+			}, this);
+
+			this.on('beforedestroy', function() {
+				this.entityStore.un('changes', this.onChanges, this);
+			}, this);
+		},
+
+		/**
+		 * Fires when items are added, changed or destroyed in the entitystore.
+		 * 
+		 * @param {go.data.EntityStore} entityStore
+		 * @param {Object[]} added
+		 * @param {Object[]} changed
+		 * @param {int[]} destroyed
+		 * @returns {void}
+		 */
+		onChanges : function(entityStore, added, changed, destroyed) {		
+
+		},
+
+		//Without this override findParentByType doesn't work if you don't Ext.reg() all your components
+		 getXTypes : function(){
+					var tc = this.constructor;
+					if(!tc.xtypes){
+							var c = [], sc = this;
+							while(sc){
+									c.unshift(sc.constructor.xtype);
+									sc = sc.constructor.superclass;
+							}
+							tc.xtypeChain = c;
+							tc.xtypes = c.join('/');
+					}
+					return tc.xtypes;
+			}
+	});
+})();
 
 Ext.override(Ext.form.TextArea,{
 	insertAtCursor: function(v) {
@@ -89,6 +112,26 @@ Ext.override(Ext.form.TextArea,{
 		this.el.focus();
 		text_field.setSelectionRange(endPos+v.length, endPos+v.length);
 	}
+});
+
+Ext.override(Ext.form.BasicForm,{
+	submit : function(options){
+        options = options || {};
+        if(this.standardSubmit){
+            var v = options.clientValidation === false || this.isValid();
+            if(v){
+                var el = this.el.dom;
+                if(this.url){
+                    el.action = this.url;
+                }
+                el.submit();
+            }
+            return v;
+        }
+        var submitAction = String.format('{0}submit', this.api ? 'direct' : '');
+        this.doAction(submitAction, options);
+        return this;
+    }
 });
 
 Ext.override(Ext.grid.Column,{
@@ -229,7 +272,7 @@ Ext.override(Ext.tree.TreeNodeUI, {
             '<span class="x-tree-node-indent">',this.indentMarkup,"</span>",
             '<span class="x-tree-ec-icon x-tree-elbow"></span>',
             '<span style="background-image:url(', a.icon || this.emptyIcon, ');" class="x-tree-node-icon',(a.icon ? " x-tree-node-inline-icon" : ""),(a.iconCls ? " "+a.iconCls : ""),'" unselectable="on"></span>',
-            cb ? ('<input class="x-tree-node-cb" type="checkbox" ' + (a.checked ? 'checked="checked" />' : '/>')) : '',
+            cb ? ('<span class="x-tree-node-cb"><input type="checkbox" ' + (a.checked ? 'checked="checked" /></span>' : '/></span>')) : '',
             '<a hidefocus="on" class="x-tree-node-anchor" href="',href,'" tabIndex="1" ',
              a.hrefTarget ? ' target="'+a.hrefTarget+'"' : "", '><span unselectable="on">',n.text,"</span></a></div>",
             '<ul class="x-tree-node-ct" style="display:none;"></ul>',
@@ -249,7 +292,7 @@ Ext.override(Ext.tree.TreeNodeUI, {
         this.iconNode = cs[2];
         var index = 3;
         if(cb){
-            this.checkbox = cs[3];
+            this.checkbox = cs[3].childNodes[0];
             // fix for IE6
             this.checkbox.defaultChecked = this.checkbox.checked;
             index++;
@@ -698,7 +741,15 @@ Ext.override(Ext.form.Field, {
 		
 		
 		this.fieldInitComponent.call(this);
-	}
+	},
+	
+	setFieldLabel: function(label){
+		if(this.rendered){
+			this.label.update(label+':');
+		} else {
+			this.label = label;
+		}
+	}		
 });
 
 Ext.util.Format.dateRenderer = function(format) {

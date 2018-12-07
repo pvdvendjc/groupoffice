@@ -50,7 +50,7 @@ $server->on('exception', function($e){
 
 //baseUri can also be /webdav/ with:
 //Alias /webdav/ /path/to/files.php
-$baseUri = strpos($_SERVER['REQUEST_URI'],'files.php') ? \GO()->getSettings()->URL . 'modules/dav/files.php/' : '/webdav/';
+$baseUri = strpos($_SERVER['REQUEST_URI'],'files.php') ? \GO::config()->host . 'modules/dav/files.php/' : '/webdav/';
 $server->setBaseUri($baseUri);
 
 
@@ -78,6 +78,10 @@ $server->addPlugin($auth);
 
 // Temporary file filter
 $tempFF = new Sabre\DAV\TemporaryFileFilterPlugin($tmpDir->path());
+
+// Add regex for Office lock files
+$tempFF->temporaryFilePatterns[] = '/^~\$.*$/';
+
 $server->addPlugin($tempFF);
 
 // And off we go!

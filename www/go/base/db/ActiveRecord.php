@@ -1350,7 +1350,7 @@ abstract class ActiveRecord extends \GO\Base\Model{
 			}
 		}
 
-		$joinCf = !empty($params['joinCustomFields']) && $this->customfieldsModel() && GO::modules()->customfields && GO::modules()->customfields->permissionLevel;
+		$joinCf = !empty($params['joinCustomFields']) && $this->customfieldsModel();
 
 		if($joinCf){
 
@@ -2380,14 +2380,15 @@ abstract class ActiveRecord extends \GO\Base\Model{
 		$v = [];
 		foreach($attributes as $key=>$value)
 		{
-			if(substr($key,0,13)=='customFields_'){
+			if(substr($key,0,13)=='customFields_' || substr($key,0,13)=='customFields.'){
 				$v[substr($key,13)] = $attributes[$key];
 				unset($attributes[$key]);
 			}
 		}
 		return $v;
 	}
-
+	
+	
 	/**
 	 * This function is used to set attributes of this model from a controller.
 	 * Input may be in regional format and the model will translate it to the
@@ -4182,6 +4183,12 @@ abstract class ActiveRecord extends \GO\Base\Model{
 			$last = array_pop($parts);
 
 			while($part = array_shift($parts)){
+				
+				// Solved when customfields is refactored in GO6.4
+				if($part == 'customFields') {
+					$part = 'customfields';
+				}
+				
 				$model = $model->$part;
 				if(!$model){
 					return null;
@@ -4802,7 +4809,7 @@ abstract class ActiveRecord extends \GO\Base\Model{
 			echo "Processing ".static::class ."\n";
 			
 			$entityTypeId = static::getType()->getId();
-			
+		
 			$start = 0;
 			$limit = 100;
 			
@@ -4816,7 +4823,7 @@ abstract class ActiveRecord extends \GO\Base\Model{
 			
 			$findParams->getCriteria()->addCondition('entityId',null, 'IS', 'search');							
 			
-			//per thousands to keep memory low
+			//In small batches to keep memory low
 			$stmt = $this->find($findParams);
 			while($stmt->rowCount()) {	
 	
@@ -4830,6 +4837,7 @@ abstract class ActiveRecord extends \GO\Base\Model{
 						} else
 						{
 							echo "S";
+							$start++;
 						}
 						
 					} catch (\Exception $e) {
@@ -4839,9 +4847,7 @@ abstract class ActiveRecord extends \GO\Base\Model{
 				}
 				echo "\n";
 				
-				$stmt = $this->find($findParams->start($start += $limit));		
-
-				
+				$stmt = $this->find($findParams->start($start));				
 			}
 			
 			echo "\nDone\n\n";

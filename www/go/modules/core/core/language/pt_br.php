@@ -164,7 +164,7 @@ return array (
   'Week' => 'Semana',
   'Weeks' => 'Semanas',
   'Month' => 'Mês',
-  'months' => 
+  'full_months' => 
   array (
     1 => 'Janeiro',
     2 => 'Fevereiro',
@@ -907,4 +907,9 @@ Se você não solicitou uma nova senha por favor ignore esta mensagem.',
     'sql' => 'Banco de dados SQL',
     'xmind' => 'Arquivo XMind',
   ),
+	'Recurrence' => 'Periodicidade',
+	'Repeat forever' => 'repetir para sempre',
+  'Repeat every' => 'Repetir a cada',
+  'Repeat until' => 'Repetir até',
+  'At days' => 'Nos dias'
 );

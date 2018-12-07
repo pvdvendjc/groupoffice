@@ -1,7 +1,7 @@
 /* global go, Ext, GO, mcrypt */
 
 go.modules.community.notes.NoteDetail = Ext.extend(go.panels.DetailView, {
-	entityStore: go.Stores.get("Note"),
+	entityStore: "Note",
 	stateId: 'no-notes-detail',
 
 	//model_name: "go\\modules\\community\\notes\\model\\Note", //only for backwards compatibility with older panels.
@@ -112,8 +112,7 @@ go.modules.community.notes.NoteDetail = Ext.extend(go.panels.DetailView, {
 				tooltip: t("Edit"),
 				handler: function (btn, e) {
 					var noteEdit = new go.modules.community.notes.NoteForm();
-					noteEdit.show();
-					noteEdit.load(this.data.id);
+					noteEdit.load(this.data.id).show();
 				},
 				scope: this
 			},

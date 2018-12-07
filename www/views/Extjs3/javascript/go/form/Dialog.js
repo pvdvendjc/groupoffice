@@ -1,3 +1,5 @@
+/* global go */
+
 /**
  * 
  * Typical usage
@@ -36,43 +38,69 @@ go.form.Dialog = Ext.extend(go.Window, {
 		
 		this.items = [this.formPanel];
 
-		this.buttons = [this.deleteBtn = new Ext.Button({
-				text: t("Delete"),
-				cls: 'danger',
-				handler: this.delete,
-				disabled: true,
-				scope: this
-			}), '->', {
+		this.buttons = [
+			'->', 
+			{
 				text: t("Save"),
 				handler: this.submit,
 				scope: this
 			}];
 
-		go.form.Dialog.superclass.initComponent.call(this);
+		go.form.Dialog.superclass.initComponent.call(this);		
 		
-		this.entityStore.on('changes',this.onChanges, this);
-		
-
-		this.on('destroy', function() {
-			this.entityStore.un('changes', this.onChanges, this);
-		}, this);
+		if(this.entityStore.entity.linkable) {
+			this.addCreateLinkButton();
+		}		
 
 		if (this.formValues) {
 			this.formPanel.form.setValues(this.formValues);
 			delete this.formValues;
 		}
 	},
+	
+	
+	addCreateLinkButton : function() {
+		
+		this.getFooterToolbar().insert(0, this.createLinkButton = new go.modules.core.links.CreateLinkButton());	
+		
+		this.on("load", function() {
+			this.createLinkButton.setEntity(this.entityStore.entity.name, this.currentId);
+		}, this);
+
+		this.on("show", function() {
+			if(!this.currentId) {
+				this.createLinkButton.reset();
+			}
+		}, this);
+
+		this.on("submit", function(dlg, success, serverId) {			
+			this.createLinkButton.setEntity(this.entityStore.entity.name, serverId);
+			this.createLinkButton.save();
+		}, this);
+	
+	},
 
 	load: function (id) {
-		this.currentId = id;
+		
+		var me = this;
+		
+		function innerLoad(){
+			me.currentId = id;
 
-		if(!this.formPanel.load(id)) {			
-			//If no entity was returned the entity store will load it and fire the "changes" event. This dialog listens to that event.
-			this.actionStart();
-		} else
-		{
-			//needs to fire because overrides are made to handle logic after form load.
-			this.onLoad();
+			if(!me.formPanel.load(id)) {			
+				//If no entity was returned the entity store will load it and fire the "changes" event. This dialog listens to that event.
+				me.actionStart();
+			} else {
+				//needs to fire because overrides are made to handle logic after form load.
+				me.onLoad();
+			}
+		}
+		
+		// The form needs to be rendered before the data can be set
+		if(!this.rendered){
+			this.on('afterrender',innerLoad,this,{single:true});
+		} else {
+			innerLoad.call(this);
 		}
 		
 		return this;
@@ -80,7 +108,9 @@ go.form.Dialog = Ext.extend(go.Window, {
 	
 	onChanges : function(entityStore, added, changed, destroyed) {
 		
-		if(changed.concat(added).indexOf(this.currentId) !== -1) {
+		var entity = added[this.currentId] || changed[this.currentId] || false;
+		
+		if(entity) {
 			this.actionComplete();
 			this.onLoad();
 		}		
@@ -89,7 +119,7 @@ go.form.Dialog = Ext.extend(go.Window, {
 	delete: function () {
 		
 		Ext.MessageBox.confirm(t("Confirm delete"), t("Are you sure you want to delete this item?"), function (btn) {
-			if (btn != "yes") {
+			if (btn !== "yes") {
 				return;
 			}
 			
@@ -115,7 +145,8 @@ go.form.Dialog = Ext.extend(go.Window, {
 	},
 	
 	onLoad : function() {
-		this.deleteBtn.setDisabled(this.formPanel.entity.permissionLevel < GO.permissionLevels.writeAndDelete);
+		this.fireEvent("load", this);
+//		this.deleteBtn.setDisabled(this.formPanel.entity.permissionLevel < GO.permissionLevels.writeAndDelete);
 	},
 	
 	onSubmit : function() {
@@ -154,6 +185,8 @@ go.form.Dialog = Ext.extend(go.Window, {
 		this.formPanel.submit(function(formPanel, success, serverId) {
 			this.actionComplete();
 			this.onSubmit();
+			this.fireEvent("submit", this, success, serverId);
+			
 			if(!success) {
 				return;
 			}

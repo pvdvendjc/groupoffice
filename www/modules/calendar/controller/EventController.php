@@ -139,7 +139,7 @@ class EventController extends \GO\Base\Controller\AbstractModelController {
 			//$params['recurrenceExceptionDate'] is a unixtimestamp. We should return this event with an empty id and the exception date.			
 			//this parameter is sent by the view when it wants to edit a single occurence of a repeating event.
 			
-			if($params['exception_date'] != $recurringEvent->start_time) {
+			//if($params['exception_date'] != $recurringEvent->start_time) {
 				//reset the original attributes other wise create exception can fail
 				$model->resetAttributes();
 				if(!empty($params['thisAndFuture']) && $params['thisAndFuture'] == 'true') {
@@ -184,7 +184,7 @@ class EventController extends \GO\Base\Controller\AbstractModelController {
 					$this->_setEventAttributes($model, $params);
 
 				}
-			}
+			//}
 		}
 				
 		return parent::beforeSubmit($response, $model, $params);
@@ -1604,7 +1604,8 @@ class EventController extends \GO\Base\Controller\AbstractModelController {
 		//update participant statuses from main event if possible
 		$organizerEvent = $event->getOrganizerEvent();
 		if($organizerEvent) {
-			\GO::getDbConnection()->query("UPDATE cal_participants p1 INNER JOIN cal_participants p2 ON (p2.email=p1.email and p2.event_id = ".$organizerEvent->id.") SET p1.status=p2.status WHERE p1.event_id = ".$event->id);
+			\GO::getDbConnection()->query("DELETE FROM cal_participants WHERE event_id = ".$event->id);
+			\GO::getDbConnection()->query("INSERT INTO cal_participants (event_id, name, email, user_id, contact_id, status, last_modified, is_organizer, role) SELECT '".$event->id."', name, email, user_id, contact_id, status, last_modified, is_organizer, role FROM cal_participants p2 WHERE p2.event_id = ".$organizerEvent->id);
 		}
 
 //		if(!$participant)

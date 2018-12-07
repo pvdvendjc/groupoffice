@@ -173,7 +173,7 @@ return array (
   'Week' => 'সপ্তাহ',
   'Weeks' => 'সপ্তাহ',
   'Month' => 'মাস',
-  'months' => 
+  'full_months' => 
   array (
     1 => 'জানুয়ারি',
     2 => 'ফেব্রুয়ারি',
@@ -918,4 +918,9 @@ If you did not request a new password please delete this mail.' => '%s,
     'sql' => 'SQL ডাটাবেজ রপ্তানি',
     'xmind' => 'XMind ফাইল',
   ),
+	'Repeat forever' => 'অনন্তকাল পূনঃপূন সংঘটন',
+  'Repeat every' => 'পূনঃসংঘটন প্রতি',
+  'Repeat until' => 'যত্ক্ষণ পর্যন্ত পূনঃসংঘটন',
+	'Recurrence' => 'পূনঃপূন সংঘটন',
+	'At days' => 'দিনে',
 );

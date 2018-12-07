@@ -14,7 +14,7 @@
 go.modules.community.multi_instance.MainPanel = Ext.extend(go.grid.GridPanel, {
 
 	initComponent: function () {
-
+		
 		var actions = this.initRowActions();
 
 		this.store = new go.data.Store({
@@ -27,14 +27,17 @@ go.modules.community.multi_instance.MainPanel = Ext.extend(go.grid.GridPanel, {
 				'adminDisplayName',
 				'adminEmail',
 				'enabled',
-				'loginCount'
+				'loginCount',
+				'usersMax',
+				{name: 'storageUsage', type: "int"},
+				{name: 'storageQuota', type: "int"}
 			],
-			entityStore: go.Stores.get("Instance")
+			entityStore: "Instance"
 		});
 
 		Ext.apply(this, {		
 			plugins: [actions],
-			tbar: [ '->', {
+			tbar: [ '->', {					
 					iconCls: 'ic-add',
 					tooltip: t('Add'),
 					handler: function (e, toolEl) {
@@ -44,18 +47,18 @@ go.modules.community.multi_instance.MainPanel = Ext.extend(go.grid.GridPanel, {
 				}, {
 					iconCls: 'ic-more-vert',
 					menu: [{
-							iconCls: 'ic-email',
+							iconCls: 'ic-email', 
 							text: t("E-mail selected"),
 							handler: function() {
 								var records = this.getSelectionModel().getSelections();
-
+						
 								var str = "";
 								Ext.each(records, function(r) {
 									if(r.data.adminEmail && str.indexOf(r.data.adminEmail) == -1) {
 										str +=  '"' + r.data.adminDisplayName.replace(/"/g, '\\"') + '" &lt;' + r.data.adminEmail + '&gt;, ';
 									}
 								});
-
+																
 								Ext.MessageBox.alert("E-mail addresses", str);
 							},
 							scope: this
@@ -82,10 +85,10 @@ go.modules.community.multi_instance.MainPanel = Ext.extend(go.grid.GridPanel, {
 						if(!record.data.enabled) {
 							metaData.css = "deactivated";
 						}
-
+						
 						return value;
 					}
-				},
+				},				
 				{
 					xtype:"datecolumn",
 					id: 'createdAt',
@@ -109,14 +112,24 @@ go.modules.community.multi_instance.MainPanel = Ext.extend(go.grid.GridPanel, {
 					width: 160,
 					sortable: true,
 					dataIndex: 'userCount',
-					hidden: false
+					hidden: false,
+					align: "right"
+				},{
+					id: 'loginMax',
+					header: t('Maximum users'),
+					width: 160,
+					sortable: true,
+					dataIndex: 'usersMax',
+					hidden: false,
+					align: "right"
 				},{
 					id: 'loginCount',
 					header: t('Login count'),
 					width: 160,
 					sortable: true,
 					dataIndex: 'loginCount',
-					hidden: false
+					hidden: false,
+					align: "right"
 				},{
 					header: t('Admin name'),
 					width: 160,
@@ -127,9 +140,24 @@ go.modules.community.multi_instance.MainPanel = Ext.extend(go.grid.GridPanel, {
 					width: 160,
 					sortable: true,
 					dataIndex: 'adminEmail'
+				},{
+					header: t('Storage quota'),
+					width: 160,
+					sortable: true,
+					dataIndex: 'storageQuota',
+					type: "int",
+					renderer: GO.util.format.fileSize,
+					align: "right"
+				},{
+					header: t('Storage usage'),
+					width: 160,
+					sortable: true,
+					dataIndex: 'storageUsage',
+					renderer: GO.util.format.fileSize,
+					align: "right"
 				},
 				actions
-
+				
 			],
 			viewConfig: {
 				emptyText: 	'<i>description</i><p>' +t("No items to display") + '</p>',
@@ -148,21 +176,11 @@ go.modules.community.multi_instance.MainPanel = Ext.extend(go.grid.GridPanel, {
 			this.store.load();
 		}, this);
 
-		this.on('rowdblclick', function (grid, rowIndex, e) {
-
-			var record = grid.getStore().getAt(rowIndex);
-			if (record.get('permissionLevel') < GO.permissionLevels.write) {
-				return;
-			}
-
-			var dialog = new go.modules.community.multi_instance.Dialog();
-			dialog.currentId = record.id;
-			dialog.show();
-
-		});
-
+		this.on("rowdblclick", function(grid, rowIndex, e) {
+			this.edit(grid.store.getAt(rowIndex).data.id);
+		}, this);
 	},
-
+	
 	initRowActions: function () {
 
 		var actions = new Ext.ux.grid.RowActions({
@@ -173,7 +191,6 @@ go.modules.community.multi_instance.MainPanel = Ext.extend(go.grid.GridPanel, {
 			header: '',
 			hideMode: 'display',
 			keepSelection: true,
-
 			actions: [{
 					iconCls: 'ic-more-vert'
 				}]
@@ -189,8 +206,8 @@ go.modules.community.multi_instance.MainPanel = Ext.extend(go.grid.GridPanel, {
 		return actions;
 
 	},
-
-
+	
+	
 	showMoreMenu : function(record, e) {
 		if(!this.moreMenu) {
 			this.moreMenu = new Ext.menu.Menu({
@@ -200,7 +217,7 @@ go.modules.community.multi_instance.MainPanel = Ext.extend(go.grid.GridPanel, {
 						iconCls: 'ic-lock-open',
 						text: t("Login as administrator"),
 						handler: function() {
-
+							
 							var win = window.open("about:blank", "groupoffice_instance");
 							go.Jmap.request({
 								method: "community/multi_instance/Instance/login",
@@ -208,7 +225,7 @@ go.modules.community.multi_instance.MainPanel = Ext.extend(go.grid.GridPanel, {
 									id: this.moreMenu.record.get('id')
 								},
 								callback: function(options, success, result) {
-
+									
 									//POST access token to popup for enhanced security
 									var f = document.createElement("form");
 									f.setAttribute('method',"post");
@@ -218,29 +235,29 @@ go.modules.community.multi_instance.MainPanel = Ext.extend(go.grid.GridPanel, {
 									var i = document.createElement("input"); //input element, text
 									i.setAttribute('type',"hidden");
 									i.setAttribute('name',"accessToken");
-									i.setAttribute('value',result.accessToken);
+									i.setAttribute('value',result.accessToken);									
 									f.appendChild(i);
-
+									
 									var body = document.getElementsByTagName('body')[0];
-									body.appendChild(f);
-									f.submit();
-									body.removeChild(f);
-
+									body.appendChild(f);									
+									f.submit();																	
+									body.removeChild(f);									
+									
 								},
 								scope: this
 							});
 						},
-						scope: this
+						scope: this						
 					}, '-',
 					{
 						itemId:"deactivate",
 						iconCls: 'ic-block',
-						text: t("Deactivate instance"),
+						text: t("Deactivate"),
 						handler: function() {
-
+							
 							var update = {};
 							update[this.moreMenu.record.id] = {enabled: !this.moreMenu.record.data.enabled};
-
+						
 							go.Stores.get("Instance").set({
 								update: update
 							});
@@ -248,23 +265,38 @@ go.modules.community.multi_instance.MainPanel = Ext.extend(go.grid.GridPanel, {
 						},
 						scope: this
 					},{
+						itemId: "edit",
+						iconCls: 'ic-edit',
+						text: t("Edit"),
+						handler: function() {
+
+							this.edit(this.moreMenu.record.data.id);
+
+						},
+						scope: this
+					},{
 						itemId: "delete",
 						iconCls: 'ic-delete',
-						text: t("Delete instance"),
+						text: t("Delete"),
 						handler: function() {
 							this.getSelectionModel().selectRecords([this.moreMenu.record]);
 							this.deleteSelected();
 						},
 						scope: this
-					},
-
+					}
+					
 				]
-			})
-		}
-
+			});
+		}	
+		
 		this.moreMenu.record = record;
 		this.moreMenu.items.item("deactivate").setText(record.data.enabled ? t("Deactivate instance") : t("Activate instance"));
 		this.moreMenu.showAt(e.getXY());
+	},
+
+	edit : function(instanceId) {
+		var dlg = new go.modules.community.multi_instance.InstanceDialog();
+		dlg.load(instanceId).show();
 	}
 });
 
