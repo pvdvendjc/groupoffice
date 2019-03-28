@@ -262,9 +262,14 @@ class User extends \GO\Base\Db\ActiveRecord {
 	public function tableName() {
 		return 'core_user';
 	}
+	
+	public function aclField() {
+		return 'group.aclId';
+	}
 
 	public function relations() {
 		return array(
+			'group' => array('type' => self::HAS_ONE, 'model' => 'GO\Base\Model\Group', 'field' => 'isUserGroupFor'),
 			'contact' => array('type' => self::HAS_ONE, 'model' => 'GO\Addressbook\Model\Contact', 'field' => 'go_user_id'),
 			'reminders' => array('type'=>self::MANY_MANY, 'model'=>'GO\Base\Model\Reminder', 'field'=>'user_id', 'linkModel' => 'GO\Base\Model\ReminderUser'),
 			'groups' => array('type'=>self::MANY_MANY, 'model'=>'GO\Base\Model\Group', 'field'=>'userId', 'linkModel' => 'GO\Base\Model\UserGroup'),
@@ -400,7 +405,7 @@ class User extends \GO\Base\Db\ActiveRecord {
 				$this->disk_usage+=$bytes;
 			}
 		} else
-			throw new \Exceptions('Can not calculated diskusage without the files module');
+			throw new \Exception('Can not calculated diskusage without the files module');
 		return $this;
 	}
 	

@@ -611,7 +611,7 @@ var $billing_clear_payment_method_on_duplicate = true;
 	 * @var     StringHelper
 	 * @access  public
 	 */
-	var $db_charset = 'utf8mb4';
+	var $db_charset = "'utf8mb4' COLLATE 'utf8mb4_unicode_ci'";
 	
 	/**
 	 *
@@ -1344,8 +1344,12 @@ var $billing_clear_payment_method_on_duplicate = true;
 	
 	private function getGlobalConfig() {
 		$globalConfigFile = '/etc/groupoffice/globalconfig.inc.php';
-		if (file_exists($globalConfigFile)) {
-			require($globalConfigFile);
+		try {
+			if (file_exists($globalConfigFile)) {
+				require($globalConfigFile);
+			}
+		}catch(\Exception $e) {
+			//ignore open_basedir error
 		}
 
 		return $config ?? [];

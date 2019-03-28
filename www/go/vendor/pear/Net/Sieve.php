@@ -56,19 +56,19 @@ require_once 'Net/Socket.php';
  * Disconnected state
  * @const NET_SIEVE_STATE_DISCONNECTED
  */
-define('NET_SIEVE_STATE_DISCONNECTED', 1, true);
+define('NET_SIEVE_STATE_DISCONNECTED', 1);
 
 /**
  * Authorisation state
  * @const NET_SIEVE_STATE_AUTHORISATION
  */
-define('NET_SIEVE_STATE_AUTHORISATION', 2, true);
+define('NET_SIEVE_STATE_AUTHORISATION', 2);
 
 /**
  * Transaction state
  * @const NET_SIEVE_STATE_TRANSACTION
  */
-define('NET_SIEVE_STATE_TRANSACTION', 3, true);
+define('NET_SIEVE_STATE_TRANSACTION', 3);
 
 
 /**
@@ -1183,7 +1183,13 @@ class Net_Sieve
 				'verify_peer_name' => false,
 			),
 		));
-        if (!stream_socket_enable_crypto($this->_sock->fp, true, STREAM_CRYPTO_METHOD_TLS_CLIENT)) {
+			$crypto_method = STREAM_CRYPTO_METHOD_TLS_CLIENT;
+			if (defined('STREAM_CRYPTO_METHOD_TLSv1_2_CLIENT')) {
+				$crypto_method |= STREAM_CRYPTO_METHOD_TLSv1_2_CLIENT;
+				$crypto_method |= STREAM_CRYPTO_METHOD_TLSv1_1_CLIENT;
+		  }
+		
+        if (!stream_socket_enable_crypto($this->_sock->fp, true, $crypto_method)) {
             return PEAR::raiseError('Failed to establish TLS connection', 2);
         }
 
