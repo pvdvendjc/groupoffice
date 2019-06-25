@@ -905,7 +905,7 @@ class FolderController extends \GO\Base\Controller\AbstractModelController {
 			if(isset($params['sort'])){
 				
 				if($params['sort'] == 'name') {
-					 $findParams->order(new \go\core\db\Expression('name COLLATE utf8mb4_unicode_ci ' . (!isset($params['dir']) || $params['dir'] == 'ASC' ? 'ASC' : 'DESC')));
+					 $findParams->order(new \go\core\db\Expression('t.name COLLATE utf8mb4_unicode_ci ' . (!isset($params['dir']) || $params['dir'] == 'ASC' ? 'ASC' : 'DESC')));
 				}else
 				{				
 					$findParams->order("t.".$params['sort'], $params['dir']);
@@ -1580,5 +1580,28 @@ class FolderController extends \GO\Base\Controller\AbstractModelController {
 		}
 
 		return $response;
+	}
+	
+	
+	/**
+	 * Delete a single not. Must be a POST request
+	 *
+	 * @param int $id
+	 * @throws Exception
+	 * @throws \GO\Base\Exception\NotFound
+	 */
+	protected function actionDelete($id) {
+
+		if (!GO::request()->isPost() && !GO::environment()->isCli()) {
+			throw new Exception('Delete must be a POST request');
+		}
+
+		$model = \GO\Files\Model\Folder::model()->findByPk($id);
+		if (!$model)
+			throw new \GO\Base\Exception\NotFound();
+
+		$model->delete();
+
+		echo $this->render('delete', array('model' => $model));
 	}
 }

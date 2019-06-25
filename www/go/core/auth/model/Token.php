@@ -214,13 +214,14 @@ class Token extends Entity {
 	/**
 	 * Authenticate this token
 	 * 
-	 * @return boolean success
+	 * @return bool success
 	 */
 	public function setAuthenticated(){
 		
 		$user = $this->getUser();
 		$user->lastLogin = new DateTime();
 		$user->loginCount++;
+		$user->language = GO()->getLanguage()->getIsoCode();
 		if(!$user->save()) {
 			return false;
 		}
@@ -253,12 +254,11 @@ class Token extends Entity {
 	 */
 	private function oldLogin(){
 		
-		if(\go\core\Environment::get()->isCli()){
+		if(\go\core\Environment::get()->isCli()) {
 			return;
-		}
+		}		
 		
-    if (session_status() == PHP_SESSION_NONE) {
-			
+    if (session_status() == PHP_SESSION_NONE && !headers_sent()) {
       //without cookie_httponly the cookie can be accessed by malicious scripts 
       //injected to the site and its value can be stolen. Any information stored in 
       //session tokens may be stolen and used later for identity theft or
@@ -277,12 +277,11 @@ class Token extends Entity {
     }
 		
 		if(!isset($_SESSION['GO_SESSION'])) {
-				$_SESSION['GO_SESSION'] = [];
-			}			
+			$_SESSION['GO_SESSION'] = [];
+		}			
+
 		$_SESSION['GO_SESSION']['user_id'] = $this->userId;
-		$_SESSION['GO_SESSION']['accessToken'] = $this->accessToken;			
-		
-		
+		$_SESSION['GO_SESSION']['accessToken'] = $this->accessToken;
 	}
 	
 	private function oldLogout() {

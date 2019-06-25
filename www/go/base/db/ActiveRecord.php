@@ -160,7 +160,9 @@ abstract class ActiveRecord extends \GO\Base\Model{
 	 * @var \GO\Base\Model\Acl
 	 */
 	private $_acl=false;
-
+	
+	private $_isDeleted = false;
+	
 	/**
 	 * If this property is set the ACL of the model will be changed
 	 * Possible values:
@@ -3104,11 +3106,16 @@ abstract class ActiveRecord extends \GO\Base\Model{
 			if($this->overwriteAcl !== null) {
 				if($this->overwriteAcl && !$this->isAclOverwritten()) { //Overwrite
 					
+					
 					$oldAcl = $this->findRelatedAclModel()->acl;
+					if($oldAcl->getUserLevel() < \GO\Base\Model\Acl::MANAGE_PERMISSION) {
+						throw new \GO\Base\Exception\AccessDenied("You're not allowed to change permissions");
+					}					
+					
 					$user_id = !empty($this->user_id) ? $this->user_id : 0;
 					$acl = new \GO\Base\Model\Acl();
 					$acl->usedIn=$this->tableName().'.'.$this->aclOverwrite();
-					$acl->ownedBy=$user_id;
+					$acl->ownedBy=$oldAcl->ownedBy;
 					$acl->save();
 					
 					$oldAcl->copyPermissions($acl);
@@ -3178,7 +3185,10 @@ abstract class ActiveRecord extends \GO\Base\Model{
 				$this->checkModelFolder();				
 			}
 
-			$this->setIsNew(false);			
+			$this->setIsNew(false);		
+			//make sure custom field record is created on new records
+			$this->getCustomfieldsRecord();
+
 			$changed  = $this->_processFileColumns($fileColumns);
 			if($changed || $this->afterDbInsert() || $this->isModified('files_folder_id')){
 				$this->_dbUpdate();
@@ -3214,6 +3224,9 @@ abstract class ActiveRecord extends \GO\Base\Model{
 		}
 
 		//use private customfields record so it's accessed only when accessed before
+
+
+
 		if (isset($this->_customfieldsRecord)){
 			//id is not set if this is a new record so we make sure it's set here.
 			$this->_customfieldsRecord->{$this->_customfieldsRecord->primaryKey()}=$this->id;
@@ -3385,6 +3398,8 @@ abstract class ActiveRecord extends \GO\Base\Model{
 		
 		return array();
 	}
+
+	public static $log_enabled = true;
 	
 	/**
 	 * Will all a log record in go_log
@@ -3395,7 +3410,7 @@ abstract class ActiveRecord extends \GO\Base\Model{
 	 */
 	protected function log($action, $save=true, $modifiedCustomfieldAttrs=false){
 		// jsonData field in go_log might not exist yet during upgrade
-		if(\GO::router()->getControllerRoute() == 'maintenance/upgrade') {
+		if(!self::$log_enabled) {
 			return true;
 		}
 		$message = $this->getLogMessage($action);
@@ -3793,7 +3808,7 @@ abstract class ActiveRecord extends \GO\Base\Model{
 	 *
 	 * @return boolean
 	 */
-	private function _dbInsert(){
+	protected function _dbInsert(){
 
 		$fieldNames = array();
 
@@ -4081,6 +4096,8 @@ abstract class ActiveRecord extends \GO\Base\Model{
 		if(!$success)
 			throw new \Exception("Could not delete from database");
 
+		$this->_isDeleted = true;
+		
 		$this->log(\GO\Log\Model\Log::ACTION_DELETE);
 
 		$attr = $this->getCacheAttributes();
@@ -4121,13 +4138,15 @@ abstract class ActiveRecord extends \GO\Base\Model{
 		if($this->hasLinks() && !is_array($this->pk)) {
 			$this->deleteReminders();
 		}
-
+		
 		$this->fireEvent('delete', array(&$this));
 
 		return true;
 	}
 	
-	
+	public function isDeleted(){
+		return $this->_isDeleted;
+	}
 
 
 	private function _deleteLinks(){
@@ -4703,7 +4722,7 @@ abstract class ActiveRecord extends \GO\Base\Model{
 			$customattr = $this->_attributes;
 			$customattr['model_id']=$this->id;
 
-			$this->_customfieldsRecord = new $model;
+			$this->_customfieldsRecord = new $model(false);
 			$this->_customfieldsRecord->setAttributes($customattr,false);
 			$this->_customfieldsRecord->clearModifiedAttributes();
 		}

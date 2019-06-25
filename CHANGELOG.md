@@ -1,3 +1,84 @@
+24-06-2019 6.3.80
+- Calendar: Fixed error where appointment dialog wouldn't load
+
+24-06-2019 6.3.79
+- Core: Bug in script loading prevented GO from starting
+
+21-06-2019 6.3.78
+- Address book: Fixed bug where to address in composer was not filled when creating mail from contact
+- Projects: Fixed problem where projects wouldn't load after opening a project from a link
+- Core: Faster boot time due to caching in the browser
+
+18-06-2019 6.3.77
+- Files: Fixed issue that searching files throws an error about an ambiguous column
+- Fix for keyboard navigation in Firefox 67
+
+03-06-2019 6.3.76
+- Fixed some 6.2 upgrade issues.
+
+27-05-2019 6.3.75
+- Tickets: Added missing language in tickets for Brazilian portuges
+- Email: Fixed render issue when pasting multiple recipients in email composer
+- Smime: validate if import is in PEM format. Fixed S/MIME Certificate Import Error #288
+- core: fixed language issue with pt_BR
+- billing: show country in full name
+
+21-05-2019 6.3.74
+- core: Use varchar 190 field for search keywords
+- Scanbox: Fixed "link to item" feature
+- Core/Links: Added singleSelect config to createLinkWindow
+- core: Smaller paddings on trees and grids
+- email: red color on email flags
+- customfields: function field could unset other custom fields.
+
+14-05-2019 6.3.73
+- Sync/email: Fixed paging and searching in select email in sync settings
+- Core: Created new setting callto_open_window to control if a phone number click will open a window
+- Core: Fixed issue that when a link is created on model->save and the Link/set is called afterwards, that an error is thrown when the link did    
+        already exist. Now the error is ignored when validationerror status == 11 
+- Core: Clear listeners before creating the new ones again.
+- Core: Fixed issue that the columnSelectGrid for export could crash when pressing "Delete" button to remove a column.
+        Double click or drag/drop should be used. Delete is disabled now.
+
+06-05-2019 6.3.72
+- Core: Auto logout when checker fails fixed
+- Core: Show route in log when access denied error is logged
+- Core: Fixed upgrade issue
+- Email: Fixed email client updating on every checker request
+
+29-04-2019 6.3.71
+- Core: Fixed search caching error
+
+25-04-2019 6.3.70
+
+- Core: Improved logging of JSON parse errors in JMAP API
+- Address book: For user contacts, only use user display name to populate contact when creating a new one
+- Groupoffice Assistant: Fixed url for downloading GroupOffice assistant
+- Email: Fixed permission issie in email account combobox (At sync settings)
+- Core: HTML editor: Fixed "Capital after punctuation" functionality in combination with the shift key
+- Core: Login screen - Fixed problem that language selection was not clickable when a message was shown.
+- Core: Fixed upgrade error for some mysql servers not supporting a large index on core_search
+
+08-04-2019 6.3.69
+
+- Core: Correct UTF-8 encoding on language import
+- Core: Prevent license error in System tasks maintenance
+- Reminders: fixed add reminder in reminder popup module
+- Leavedays: changes in Monthwindow for extending and fix un undefined issue.
+- Core: Pin TCPDF to version 6.2.22. Higher versions break image loading in PDF
+- Address book: search sent invalid data to the server causing problems on some servers
+- Core: Selected group members should be on top when editing groups
+- Core: Overriding permissions in projects was undone by users editing a project with write permissions
+- Files: Files and folders should not have a file browser menu item
+- Core: Updated French translation
+- Custom fields: Fixed rename of tree select slaves
+- Core: Don't trackResetOnLoad in TabbedFormDialog because this will create invalid default values because those dialogs are reused.
+- Core: Links open in popup window like in 6/2
+- Billing: Fixed rounding issue with round up or down enabled
+
+01-04-2019 6.3.68
+- Email: Fixed subfolders with \ as delimiter
+- Timeregistration: Improved error message when time entry with break fails
 - Addressbook: Fixed custom field import 
 - Core: Old framework registered entity incorrectly. "linkedEmail" instead of "LinkedEmail"
 - FileSearch: Fixed links to attached indexed attachments in the displaypanel. (Was broken due to new GO63 router)

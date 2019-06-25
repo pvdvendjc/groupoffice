@@ -68,6 +68,16 @@ class Field extends \GO\Base\Db\ActiveRecord{
 		return $this->databaseName;
 	}
 	
+	public function setAttribute($name, $value, $format = false) {
+		if($name == "options" && !$this->loadingFromDatabase) {
+			$o = json_decode($value, true);
+			$this->setOptions($o);
+		} else
+		{
+			parent::setAttribute($name, $value, $format);
+		}
+	}
+	
 	protected function init() {
 		
 		$this->columns['options']['gotype']='raw';
@@ -150,7 +160,7 @@ class Field extends \GO\Base\Db\ActiveRecord{
 	
 	public function setOptions($value) {
 		$existing = empty($this->_attributes['options']) ? [] : json_decode($this->_attributes['options'], true);
-		$this->_attributes['options'] = json_encode(array_merge($existing, $value));
+		parent::setAttribute('options', json_encode(array_merge($existing, $value)));
 	}
 	
 	public function getOptions() {

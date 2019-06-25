@@ -113,6 +113,7 @@ echo '<script type="text/javascript" src="' . GO::view()->getUrl() . 'lang.php?l
 	GO.settings = <?php echo json_encode($settings); ?>;
 	GO.language = "<?php echo GO::config()->language; ?>";
 	GO.calltoTemplate = '<?php echo GO::config()->callto_template; ?>';
+	GO.calltoOpenWindow = <?php echo GO::config()->callto_open_window ? "true" : "false"; ?>;
 	
 	GO.authenticationDomains = <?php echo json_encode(go\modules\core\users\model\User::getAuthenticationDomains()); ?>;
 	GO.authenticationDomainDefault = "<?php echo GO()->getSettings()->defaultAuthenticationDomain; ?>";
@@ -135,7 +136,7 @@ GO::router()->getController()->fireEvent('inlinescripts');
 <?php
   
 if ($cacheFile->exists()) {
-	echo '<script type="text/javascript" src="' . GO::view()->getUrl() . 'script.php?v= '. GO()->getVersion() . '"></script>';
+	echo '<script type="text/javascript" src="' . GO::view()->getUrl() . 'script.php?v='. GO()->getVersion() . '"></script>';
 } else {
 
 	$scripts = array();

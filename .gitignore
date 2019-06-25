@@ -69,4 +69,5 @@
 !/www/modules/webodf
 .DS_Store
 .sass-cache
+.gitmodules
 /.project

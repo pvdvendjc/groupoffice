@@ -174,7 +174,9 @@ GO.email.EmailComposer = function(config) {
 				name : 'to',
 				flex : 1,
 				listeners: {
-					grow: function() {
+					autosize: function() {			
+						//For some reason this only works by calling it twice when pasting multiple lines :(						
+						this.doLayout();
 						this.doLayout();
 					},
 					scope: this
@@ -200,7 +202,9 @@ GO.email.EmailComposer = function(config) {
 		name : 'cc',
 		anchor : '100%',
 		listeners: {
-			grow: function() {
+			autosize: function() {
+				//For some reason this only works by calling it twice when pasting multiple lines :(						
+				this.doLayout();
 				this.doLayout();
 			},
 			scope: this
@@ -225,7 +229,9 @@ GO.email.EmailComposer = function(config) {
 		name : 'bcc',
 		anchor : '100%',
 		listeners: {
-			grow: function() {
+			autosize: function() {
+				//For some reason this only works by calling it twice when pasting multiple lines :(
+				this.doLayout();
 				this.doLayout();
 			},
 			scope: this
@@ -244,7 +250,7 @@ GO.email.EmailComposer = function(config) {
 
 	})];
 								
-	var anchor = -113;
+	// var anchor = -113;
 						
 	
 	
@@ -820,7 +826,8 @@ Ext.extend(GO.email.EmailComposer, GO.Window, {
 		currentVal += selections;
 
 		field.setValue(currentVal);
-
+		setTimeout(function() { field.syncHeight(); });
+		
 		if (fieldName == 'cc') {
 			this.ccFieldCheck.setChecked(true);
 		} else if (fieldName == 'bcc') {

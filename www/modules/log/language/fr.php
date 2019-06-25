@@ -2,7 +2,7 @@
 return array (
   'Time' => 'Date & Heure',
   'Model' => 'Modèle',
-  'User agent' => 'Client internet',
+  'User agent' => 'Agent utilisateur',
   'IP address' => 'Adresse IP',
   'Controller' => 'Controlleur',
   'name' => 'Log d\'activité',
@@ -10,4 +10,5 @@ return array (
   'Action' => 'Action',
   'Message' => 'Message',
   'ID' => 'ID',
+  'Activity log' => 'Journal d\'activité',
 );

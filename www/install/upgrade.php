@@ -4,8 +4,7 @@ use go\core\App;
 use go\core\Environment;
 use go\modules\core\modules\model\Module;
 use go\core\util\Lock;
-
-
+use GO\Base\Db\ActiveRecord;
 
 
 /**
@@ -116,6 +115,9 @@ try {
 		header("Location: test.php");
 		exit();
 	}
+
+	
+
 	
 	require('header.php');
 	
@@ -123,11 +125,12 @@ try {
 	
 	App::get();
 
+	ActiveRecord::$log_enabled = false;
+
 	$lock = new Lock("upgrade");
 	if (!$lock->lock()) {
 		throw new \Exception("Upgrade is already in progress");
 	}
-
 	
 	GO()->getCache()->flush(false);
 	GO()->setCache(new \go\core\cache\None());
@@ -296,13 +299,21 @@ try {
 	}
 	
 	if(checkLicenses($dbValid == 62)) {
-	
-		if ($dbValid == 62) {					
-			require(Environment::get()->getInstallFolder() . '/install/62to63.php');
-		}
 
 		//don't be strict
 		GO()->getDbConnection()->query("SET sql_mode=''");
+	
+		if ($dbValid == 62) {					
+			require(Environment::get()->getInstallFolder() . '/install/62to63.php');
+		}		
+
+		try {
+			GO::session()->runAsRoot();
+		}
+		catch(\Exception $e) {
+			echo "\nWarning: could not run as root!\n\n";
+			echo $e;
+		}
 
 		if (!upgrade()) {
 			echo "\n\nA module was refactored. Rerunning...\n\n";

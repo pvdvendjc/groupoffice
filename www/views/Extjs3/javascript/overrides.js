@@ -111,7 +111,8 @@ Ext.override(Ext.form.TextArea,{
 		text_field.value = text_field.value.substring(0, startPos) + v + text_field.value.substring(endPos, text_field.value.length); 
 		this.el.focus();
 		text_field.setSelectionRange(endPos+v.length, endPos+v.length);
-	}
+	},
+	growMin : dp(32)
 });
 
 Ext.override(Ext.form.BasicForm,{
@@ -500,9 +501,11 @@ Ext.encode = Ext.util.JSON.encode = function(json){
 Ext.decode = Ext.util.JSON.decode = function(jsonStr){
 	try{
 		var json = eval("(" + jsonStr + ')');
-		if(json && json.redirectToLogin) {      
-			document.location.href=BaseHref;
-    }
+		if(json && json.redirectToLogin) {
+			console.warn("Redirecting to login because access is denied");  
+			document.location.href = BaseHref;
+			return;
+    	}
 		
 		return json;
 	}
@@ -761,4 +764,7 @@ Ext.util.Format.dateRenderer = function(format) {
 				
 Ext.override(Ext.form.CompositeField, {
 	submit: false //don't submit with form.getFieldValue()
+});
+Ext.override(Ext.KeyNav, {
+	forceKeyDown: true // Required for Firefox 67	
 });

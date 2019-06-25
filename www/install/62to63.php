@@ -12,6 +12,11 @@ $qs[] = function () {
 	$stmt = GO()->getDbConnection()->query("SHOW TABLE STATUS");	
 	
 	foreach($stmt as $record){
+		if($record['Engine'] == null) {
+
+			//skip views
+			continue;
+		}
 		
 		if($record['Engine'] != 'InnoDB' && $record["Name"] != 'fs_filesearch' && $record["Name"] != 'cms_files') {
 			echo "Converting ". $record["Name"] . " to InnoDB\n";
@@ -66,7 +71,7 @@ $qs[] = "CREATE TABLE `core_auth_token` (
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;";
 
 $qs[] = "CREATE TABLE `core_state` (
-  `entityClass` varchar(192) CHARACTER SET ascii COLLATE ascii_bin NOT NULL,
+  `entityClass` varchar(190) CHARACTER SET ascii COLLATE ascii_bin NOT NULL,
   `highestModSeq` int(11) DEFAULT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;";
 

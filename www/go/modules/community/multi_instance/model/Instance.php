@@ -7,6 +7,7 @@ use go\core\jmap\Entity;
 use go\core\validate\ErrorCode;
 use go\modules\community\multi_instance\Module;
 use function GO;
+use go\core\util\DateTime;
 
 class Instance extends Entity {
 	
@@ -425,16 +426,19 @@ class Instance extends Entity {
 		return $this->instanceDbConn;
 	}
 	
-	
+
 	public function createAccessToken() {
+		$now = new DateTime();
+		$expiresAt = new DateTime("+1 hour");
+		
 		$data = [
 				"loginToken" => uniqid().bin2hex(openssl_random_pseudo_bytes(16)),
 				"accessToken" => uniqid().bin2hex(openssl_random_pseudo_bytes(16)),
-				"expiresAt" => new \DateTime("+1 hour"),
+				"expiresAt" => $expiresAt,
 				"userAgent" => "Multi Instance Module",
 				"userId" => 1,
-				"createdAt" => new \DateTime(),
-				"lastActiveAt" => new \DateTime(),
+				"createdAt" => $now,
+				"lastActiveAt" => $now,
 				"remoteIpAddress" => $_SERVER['REMOTE_ADDR']
 		];
 		

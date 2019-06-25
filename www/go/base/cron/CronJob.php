@@ -44,7 +44,9 @@ use Exception;
 
 class CronJob extends \GO\Base\Db\ActiveRecord {
 		
-	public $paramsToSet = array();
+	public function getParamsToSet() {
+		return $this->_jsonToParams($this->params);
+	} 
 	
 	
 	public function setAttributes($attributes, $format = null) {
@@ -313,8 +315,9 @@ class CronJob extends \GO\Base\Db\ActiveRecord {
 				
 				
 				// set param on the job
-				if(count($this->paramsToSet)) {
-					foreach ($this->paramsToSet as $key => $value) {
+				$paramsToSet = $this->getParamsToSet();
+				if(count($paramsToSet)) {
+					foreach ($paramsToSet as $key => $value) {
 						$cronFile->{$key} = $value;
 					}
 				}
@@ -356,22 +359,11 @@ class CronJob extends \GO\Base\Db\ActiveRecord {
 				$this->nextrun-=60;
 			}
 		}
-		GO::debug('CRONJOB ('.$this->name.') NEXTRUN : '.$this->getAttribute('nextrun','formatted'));
+		// GO::debug('CRONJOB ('.$this->name.') NEXTRUN : '.date('c', $this->getAttribute('nextrun'));
 		return parent::beforeSave();
 	}
 	
-	
-	
-	protected function afterLoad() {
-		$this->paramsToSet = $this->_jsonToParams($this->params);
-		return parent::afterLoad();
-	}
-	
-
-	
 	private function _getAdditionalJobProperties(){
-		
-		
 		if(empty($this->job) || !class_exists($this->job)) {
 			return array();
 		}
