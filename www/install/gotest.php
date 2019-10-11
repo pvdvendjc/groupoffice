@@ -135,6 +135,14 @@ function test_system(){
 	$test['fatal']=false;
 
 	$tests[]=$test;
+	
+	
+	$test['name']='intl';
+	$test['showSuccessFeedback'] = false;
+	$test['pass']=class_exists('Normalizer');
+	$test['feedback']='Fatal: the php intl extension is required.';
+	$test['fatal']=true;
+	$tests[]=$test;
 
 	//echo ini_get('mbstring.func_overload');
 
@@ -263,7 +271,7 @@ function test_system(){
 	$test['name']='MultiByte string functions';
 	$test['pass']=function_exists('mb_detect_encoding');
 	$test['feedback']='Warning: php-mbstring is not installed. Problems with non-ascii characters in e-mails and filenames might occur.';
-	$test['fatal']=false;
+	$test['fatal']=true;
 
 	$tests[]=$test;
 	$test['name']='TAR Compression';
@@ -455,7 +463,7 @@ function test_system(){
 		
 		$root = dirname(dirname(__FILE__));
 
-		if($ioncubeWorks && is_dir($root.'/modules/professional'))
+		if($ioncubeWorks)
 		{
 
 			$test['name']='Professional license';

@@ -1,7 +1,6 @@
 GO.files.CompressDialog = Ext.extend(GO.Window,{
-	width: 300,
-	height:120,
-	layout:'fit',
+	width: dp(400),
+	autoHeight: true,
 	title:t("Compress"),
 	focus:function(){
 		this.formPanel.form.reset();
@@ -34,7 +33,7 @@ GO.files.CompressDialog = Ext.extend(GO.Window,{
 				var f = this.formPanel.form;
 				if(f.isValid()){
 					this.handler.call(this.scope, this, f.findField('name').getValue());
-					this.close();
+					this.hide();
 				}
 
 			},

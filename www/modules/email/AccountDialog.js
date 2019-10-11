@@ -43,35 +43,35 @@ GO.email.AccountDialog = function(config) {
 		);
 	}
 
-	if(go.Modules.isAvailable("legacy", "addressbook")){
-				
-		this.templatesCombo = new GO.form.ComboBox({
-			fieldLabel : t("Default e-mail template", "email"),
-			hiddenName : 'default_account_template_id',
-			width: 300,
-			store : new GO.data.JsonStore({
-				url : GO.url("addressbook/template/accountTemplatesStore"),
-				baseParams : {
-					'type':"0"
-				},
-				root : 'results',
-				totalProperty : 'total',
-				id : 'id',
-				fields : ['id', 'name', 'group', 'text','template_id','checked'],
-				remoteSort : true
-			}),
-			value : '',
-			valueField : 'id',
-			displayField : 'name',
-			typeAhead : true,
-			mode : 'local',
-			triggerAction : 'all',
-			editable : false,
-			selectOnFocus : true,
-			forceSelection : true
-		});
-		
-	}
+//	if(go.Modules.isAvailable("legacy", "addressbook")){
+//				
+//		this.templatesCombo = new GO.form.ComboBox({
+//			fieldLabel : t("Default e-mail template", "email"),
+//			hiddenName : 'default_account_template_id',
+//			width: 300,
+//			store : new GO.data.JsonStore({
+//				url : GO.url("addressbook/template/accountTemplatesStore"),
+//				baseParams : {
+//					'type':"0"
+//				},
+//				root : 'results',
+//				totalProperty : 'total',
+//				id : 'id',
+//				fields : ['id', 'name', 'group', 'text','template_id','checked'],
+//				remoteSort : true
+//			}),
+//			value : '',
+//			valueField : 'id',
+//			displayField : 'name',
+//			typeAhead : true,
+//			mode : 'local',
+//			triggerAction : 'all',
+//			editable : false,
+//			selectOnFocus : true,
+//			forceSelection : true
+//		});
+//		
+//	}
 
 	this.imapAllowSelfSignedCheck = new Ext.ux.form.XCheckbox({
 		boxLabel: t("Allow self signed certificate when using SSL or TLS", "email"),
@@ -413,7 +413,7 @@ GO.email.AccountDialog = function(config) {
 
 	//this.permissionsTab.disabled = false;
 	var serverTab = {
-		title: t('Server'),
+		title: t('Server', 'email'),
 		autoScroll: true,
 		visible: (GO.settings.modules.email.write_permission),
 		layout:'table',
@@ -542,7 +542,7 @@ GO.email.AccountDialog = function(config) {
 				}
 				this.aliasesDialog.show(this.account_id);
 			},
-			visible: (GO.settings.modules.email.write_permission || !GO.email.disableAliases),
+			hidden: (!GO.settings.modules.email.write_permission || GO.email.disableAliases),
 			scope : this
 		}),{
 			iconCls : 'btn-folder',
@@ -696,10 +696,10 @@ Ext.extend(GO.email.AccountDialog, GO.Window, {
 
 				this.permissionsTab.setAcl(action.result.data.acl_id);
 				
-				if (this.templatesCombo) {
-					this.templatesCombo.store.load();
-					this.templatesCombo.setRemoteText(action.result.remoteComboTexts['default_template_id']);
-				}
+//				if (this.templatesCombo) {
+//					this.templatesCombo.store.load();
+//					this.templatesCombo.setRemoteText(action.result.remoteComboTexts['default_template_id']);
+//				}
 			},
 			scope : this
 		});

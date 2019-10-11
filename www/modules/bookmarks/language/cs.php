@@ -21,4 +21,9 @@ return array (
   'description' => 'Popis',
   'Bookmarks' => 'Záložky',
   'Logo' => 'Logo',
+  'items' => 'položky',
+  'item' => 'položka',
+  'Ok' => 'OK',
+  'Website description.' => 'Popis webu',
+  'noEmployeesToDisplay' => 'Žádní zaměstnanci k zobrazení',
 );

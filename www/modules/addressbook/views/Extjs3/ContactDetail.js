@@ -110,24 +110,23 @@ GO.addressbook.ContactDetail = Ext.extend(GO.DetailView, {
 					</tpl></tpl>\
 					</div>\
 					<div class="icons">\
+					<hr class="indent">\
 					<tpl if="formatted_address">\
-						<hr class="indent">\
 						<p class="s6"><i class="icon label">home</i>\
-							<span>{address}<br>\
+							<a href="{google_maps_link}" target="_blank">{address}<br>\
 							<tpl if="address_no">{address_no}<br></tpl>\
 							<tpl if="zip">{zip}<br></tpl>\
 							<tpl if="city">{city}<br></tpl>\
 							<tpl if="state">{state}<br></tpl>\
-							<tpl if="country">{[t("countries")[values.country]]}</tpl></span>\
+							<tpl if="country">{[t("countries")[values.country]]}</tpl></a>\
 							<label>' + t("Private address", "addressbook") + '</label>\
 						</p>\
-						<tpl if="birthday"><p class="s6">\
+					</tpl>\
+					<tpl if="birthday"><p class="s6">\
 						<i class="icon label">cake</i>\
 						<label>' + t('Birthday') + '</label>\
 						<span>{birthday}</span>\
-						</p></tpl>\
-					</tpl>\
-					<hr class="indent" />\
+					</p></tpl>\
 					<tpl if="homepage"><p>\
 						<i class="icon label">language</i>\
 						<label>' + t("Homepage", "addressbook") + '</label>\
@@ -140,6 +139,10 @@ GO.addressbook.ContactDetail = Ext.extend(GO.DetailView, {
 							<label>{[this.smLabels[xindex-1]]}</label><span>{.}</span>\
 						</p>\
 					</tpl></tpl>\
+						<div class="icons"><p><i class="icon label">import_contacts</i>\
+						{addressbook_name}\
+						<label>' + t("Address book", "addressbook") + '</label>\
+					</p></div>\
 					</div>',
 									{
 										emailLabels: [t('Primary'), t("Home"), t('Work')], //email 1 2 en 3
@@ -188,7 +191,7 @@ GO.addressbook.ContactDetail = Ext.extend(GO.DetailView, {
 							<div>\
 						</tpl>\
 					</tpl>'
-				}, {
+				},  {
 					collapsible: true,
 					onLoad: function (dv) {
 						this.setVisible(!!dv.data.comment);
@@ -392,13 +395,13 @@ GO.addressbook.ContactDetail = Ext.extend(GO.DetailView, {
 			disabled: true,
 			items: [
 				'->',
-				{
+				this.editBtn = new Ext.Button({
 					itemId: "edit",
 					iconCls: 'ic-edit',
 					tooltip: t("Edit"),
 					handler: this.editHandler,
 					scope: this
-				},
+				}),
 				
 				new go.detail.addButton({			
 					detailView: this
@@ -430,7 +433,8 @@ GO.addressbook.ContactDetail = Ext.extend(GO.DetailView, {
 			}
 		}
 		
-		this.mergeButton.setDisabled(this.data.permissionLevel < GO.permissionLevels.write);
+		this.editBtn.setDisabled(this.data.permission_level < GO.permissionLevels.write);
+		this.mergeButton.setDisabled(this.data.permission_level < GO.permissionLevels.write);
 		
 		GO.addressbook.ContactDetail.superclass.onLoad.call(this);
 	}

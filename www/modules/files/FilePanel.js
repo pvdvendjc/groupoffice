@@ -86,9 +86,9 @@ GO.files.FilePanel = Ext.extend(GO.DisplayPanel,{
 	initComponent : function(){
 		
 		this.on('bodyclick',function(panel,target, e){
-			
+						
 			target = Ext.get(target);
-			
+
 			if(target.hasClass("fs-unlock")){
 				GO.request({
 					url:'files/file/submit',
@@ -131,6 +131,17 @@ GO.files.FilePanel = Ext.extend(GO.DisplayPanel,{
 						scope:this
 					})
 				}
+			}
+
+			if(target.hasClass("go-scrollintoview")){
+
+				var scrollToName = target.getAttribute('data-scrollintoview-el');
+
+				if(!Ext.isEmpty(scrollToName)){
+					var p = this.getEl();
+					var scrollTo = p.child('.'+scrollToName);
+					scrollTo.dom.scrollIntoView({behavior: "smooth", block: "start", inline: "nearest"});
+				}				
 			}
 			
 			
@@ -251,11 +262,13 @@ GO.files.FilePanel = Ext.extend(GO.DisplayPanel,{
 				
 				'</table>';
 
-		this.template +=GO.customfields.displayPanelTemplate;
+	
 		
 		if(go.Modules.isAvailable("legacy", "workflow"))
 			this.template +=GO.workflow.WorkflowTemplate;
 
 		GO.files.FilePanel.superclass.initComponent.call(this);
+		
+		this.add(go.customfields.CustomFields.getDetailPanels("File"));
 	}
 });

@@ -1,42 +1,55 @@
-GO.Window = function(config)
-	{
-		if(!config)
-		{
-			config={};
-		}
-		
-		//make sure window fits screen
-		if(config.width && config.width > window.innerWidth) {
-			config.width = window.innerWidth - dp(32);
-		}		
-		if(config.height && config.height > window.innerHeight) {
-			config.height = window.innerHeight	- dp(32);
-		}
-	
-		Ext.applyIf(config,{
-			keys:[],
-			maximizable:true,
-			minimizable:true
-		});
-	
-		GO.Window.superclass.constructor.call(this, config);
-	};
-
 GO.Window = Ext.extend(Ext.Window,{
 
 	constrainHeader : true,
+	closeAction:'hide',
 //	renderTo: Ext.get('dialogs'), // render before all script tags
 //this breaks some functionality that do stuff on render.
 	temporaryListeners : [],
 	
-	afterRender : function(){
+	resizable : !GO.util.isMobileOrTablet(),
+	draggable: !GO.util.isMobileOrTablet(),
+	maximized: GO.util.isMobileOrTablet(),
+	
+	initComponent : function(){
 		
-		GO.Window.superclass.afterRender.call(this);
+
+		
+		//make sure window fits screen
+		if(this.width && this.width > window.innerWidth) {
+			this.width = window.innerWidth - dp(32);
+		}		
+		if(this.height && this.height > window.innerHeight) {
+			this.height = window.innerHeight	- dp(32);
+
+		}
+		
+		GO.Window.superclass.initComponent.call(this);
 		
 		this.on('move', function(){			
 			//to fix combobox autocomplete failure after move or hide window			
 			document.activeElement.blur();
 		});
+		
+		
+		this.autoRestoreFocus();
+	},	
+	
+	/**
+	 * Restore focus to active element before opening the window.	 
+	 */
+	autoRestoreFocus :  function() {
+		
+		this.on("beforeshow", function() {
+			this.activeEl = document.activeElement;
+		}, this);
+		
+		this.on("close", function() {	
+			this.activeEl.focus();
+		}, this);
+		
+		this.on("hide", function() {			
+			this.activeEl.focus();
+		}, this);
 	},
 	
 	addListenerTillHide : function(eventName, fn, scope){
@@ -101,7 +114,9 @@ GO.Window = Ext.extend(Ext.Window,{
 		}
 		this.temporaryListeners=[];		
 		
-		document.activeElement.blur();
+		if(document.activeElement){
+			document.activeElement.blur();
+		}
 	},
 	
 	close: function() {
@@ -109,7 +124,7 @@ GO.Window = Ext.extend(Ext.Window,{
 		GO.Window.superclass.close.call(this);
 	},
 
-	hide : function() {		
+	hide : function(animateTarget, cb, scope) {		
 		this.removeTempListeners();		
 		
 		//Fix for ticket #201817154. Unclosable window remained when window was 
@@ -118,6 +133,6 @@ GO.Window = Ext.extend(Ext.Window,{
 		 this.unghost();
 		}
 		
-		GO.Window.superclass.hide.call(this);
+		GO.Window.superclass.hide.call(this, animateTarget, cb, scope);
 	}		
 });

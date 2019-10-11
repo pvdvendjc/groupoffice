@@ -2,9 +2,7 @@ GO.query.SavedQueryGrid = function(config) {
 	
 	config = config || {};
 	
-	config.title = t("queries");
-	
-	config.width = 230;
+	config.width = 250;
 	
 	config.store = new GO.data.JsonStore({
 		url : GO.url('advancedSearch/store'),
@@ -51,20 +49,20 @@ GO.query.SavedQueryGrid = function(config) {
 		scope:this
 	}
 	
+	config.tbar = [
+		{xtype:'tbtitle',text: t("Saved queries")},
+		{xtype:'tbsearch', store: config.store}
+	];
+	
 	config.paging = true;
 	config.bbar = new GO.SmallPagingToolbar({
-			items:[this.searchField = new GO.form.SearchField({
-				store: config.store,
-				width:120,
-				emptyText: t("Search")
-			})],
-			store:config.store,
-			pageSize:GO.settings.config.nav_page_size
-		})
+		store:config.store,
+		pageSize:GO.settings.config.nav_page_size
+	});
 
 	GO.query.SavedQueryGrid.superclass.constructor.call(this, config);
 	
-	this.queryPanel.on('reset',function(){
+	this.queryPanel.on('createNew',function(){
 		this.queryId=0;
 	},this);
 	
@@ -80,12 +78,7 @@ GO.query.SavedQueryGrid = function(config) {
 					var count = this.queryPanel.criteriaStore.getCount();
 					this.queryPanel.criteriaStore.insert(count, rec);
 				}, this);
-				
 			}
-			
-			
-			
-			
 			this.queryPanel.setQueryTitel(record.data.name);
 		},this);
 	
@@ -97,7 +90,7 @@ GO.query.SavedQueryGrid = function(config) {
 		this.queryContextMenu.callingGrid = this;
 	},this);
 	
-}
+};
 
 Ext.extend(GO.query.SavedQueryGrid,GO.grid.GridPanel,{
 	

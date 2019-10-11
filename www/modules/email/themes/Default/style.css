@@ -1,5 +1,5 @@
 @media print {
- .go-warning-msg,.message-move,.em-autolink-message,.em-contact-link-container,.em-link-message{ display: none !important; }
+ .go-warning-msg,.message-move,.em-autolink-message,.em-contact-link-container,.em-links,.em-link-message, .em-links-header{ display: none !important; }
 }
 
 .em-autolink-message{
@@ -30,6 +30,12 @@
 	background-color:#f1f1f1;
 	margin-bottom:20px;
 }
+
+.em-links .go-icon-list{
+	display: inline-block;	
+	margin-left: -15px;
+}
+
 
 .em-spam-move-block {
 	float:right;
@@ -135,11 +141,7 @@ margin:5px 2px;
 
 
 
-.message-header-table{
-	float:left;
-	margin-right: 10px;
-	margin-bottom: 5px;
-}
+
 
 .message-header-table td{
 	vertical-align:top;
@@ -185,27 +187,7 @@ margin:5px 2px;
 #email-message-panel .x-panel-body {
 	background-color:white;
 }
-.message-body{
-	padding: 8px;
-	position: relative;
-}
-.message-body p, .em-message p, .em-composer p{
-	margin-top:0px;
-	margin-bottom:0px;
-}
 
-
-
-
-.message-body p.MsoListParagraph, .message-body li.MsoListParagraph, .message-body div.MsoListParagraph
-{
-	margin-top:0cm;
-	margin-right:0cm;
-	margin-bottom:0cm;
-	margin-left:36.0pt;
-	margin-bottom:.0001pt;
-	font-size:11.0pt;
-}
 
 .email-grid-icon{
 	float:left;
@@ -223,12 +205,10 @@ margin:5px 2px;
 .attachment-wrap.x-view-over{
 	background-color:#ebf1e2;
 	border:0px !important;
-	margin:1px;
 }
 .attachment-wrap.x-view-selected{
 	background-color:#ebf1e2;
 	border:1px solid #669900 !important;;
-	margin:0px !important;
 }
 
 .email-upload-pc{

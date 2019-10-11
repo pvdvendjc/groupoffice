@@ -89,10 +89,11 @@ class Folder extends Base {
 	 */
 	public function delete(){
 		
-		//\GO::debug("DELETE: ".$this->path());
+		\GO::debug("DELETE: ".$this->path());
 		
-		if(!$this->exists())
+		if(!$this->exists()) {
 			return true;
+		}
 		
 		//just delete symlink and not contents of linked folder!
 		if(is_link($this->path))
@@ -108,6 +109,20 @@ class Folder extends Base {
 		return !is_dir($this->path) || rmdir($this->path);
 	}
 	
+	public function clearContents() {
+		if(!$this->exists())
+			return true;
+		
+		$items = $this->ls(true);
+		
+		foreach($items as $item){			
+			if(!$item->delete())
+				return false;
+		}
+		
+		return true;
+	}
+	
 	private function _validateSrcAndDestPath($srcPath, $destPath){
 		if(strpos($srcPath.'/', $destPath.'/')===0)
 		{
@@ -118,6 +133,20 @@ class Folder extends Base {
 		}
 	}
 	
+	/**
+	 * Rename on folder with contents fails so do a move.
+	 * 
+	 * @param string $name
+	 * @return bool
+	 */
+	public function rename($name) {
+		
+		
+		if($this->move($this->parent(), $name)) {
+			$this->path = dirname($this->path).'/'.$name;
+			return true;
+		}
+	}	
 	
 	/**
 	 * Move the folder to another folder.
@@ -127,7 +156,7 @@ class Folder extends Base {
 	 * @param boolean $appendNumberToNameIfDestinationExists Rename the folder like "folder (1)" if it already exists.	 * 
 	 * @return Folder $destinationFolder
 	 */
-	public function move(Folder $destinationFolder, $newFolderName=false,$appendNumberToNameIfDestinationExists=false){
+	public function move(Folder $destinationFolder, $newFolderName=false,$appendNumberToNameIfDestinationExists=false){	
 		if(!$this->exists())
 			throw new \Exception("Folder '".$this->path()."' does not exist");
 		
@@ -150,12 +179,14 @@ class Folder extends Base {
 		}		
 		
 		//do nothing if path is the same.
-		if($newPath==$this->path())
+		if($newPath==$this->path()) {
+			\GO::debug("Path is the same");
 			return true;
+		}
 		
 		$success = false;
 		try{
-			$success = rename($this->path(), $newPath);
+			$success = rename($this->path(), $newPath);			
 		} catch(\Exception $e) {
 			//rename fails accross partitions. Ignore and retry with copy delete.
 			\GO::debug("Rename failed. Falling back on copy, delete");
@@ -233,7 +264,7 @@ class Folder extends Base {
 	 * @return boolean 
 	 */
 	public function create($permissionsMode=false){
-	
+			
 		if(!$permissionsMode)
 			$permissionsMode=octdec(\GO::config()->folder_create_mode);		
 		

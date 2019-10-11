@@ -40,31 +40,36 @@
 }
 
 .x-mask-loading {
-	border:0;
-	display: block;
-   height: dp(3);
-	padding: 0;
-   overflow: hidden;
-   position: absolute;
-	top:0 !important; //override element style
-   width: 100%;
-	background-color: rgba($cAccent,.3);
-	div{ // bar
-		  border:0;
-		  padding:0;
-		  height:dp(5);
-		  background-color: $cAccent;
-		  animation-name: indeterminate1;
-		  animation-duration: 2s;
-		  animation-iteration-count: infinite;
-		  animation-timing-function: linear;
-		  display: block;
-		  position: absolute;
-		  top: 0;
-		  bottom: 0;
-		  width: 0%;
-		  transition: width .2s cubic-bezier(.4,0,.2,1);
-		  text-indent: -9999px;
+
+	&:after {			
+		content: "";
+		border:0;
+		padding:0;
+		height:dp(5);
+		background-color: $cAccent;
+		animation-name: indeterminate1;
+		animation-duration: 2s;
+		animation-iteration-count: infinite;
+		animation-timing-function: linear;
+		display: block;
+		position: absolute;
+		top: dp(5);
+		bottom: 0;
+		width: 0%;
+		transition: width .2s cubic-bezier(.4,0,.2,1);
+		text-indent: -9999px;
+	}
+	
+	div { 
+		position: relative;
+		margin: 0 auto;
+		top: dp(5);			
+		background-color: white;
+		padding: dp(20) dp(40);
+		font-size: dp(18);
+		@extend .z12;
+		text-align: center;
+
 	}
 }
 
@@ -291,7 +296,7 @@
 	@extend %icon;
 	content: 'check_box_outline_blank'; // 'check_box' when on
 	position: relative;
-	color:color($fg, 'icon');
+	color: inherit;
 	display:inline-block;
 	height: dp(32);
 	width: dp(32);
@@ -300,6 +305,13 @@
 	background-color: transparent;
 	border-radius: 50%;
 	padding:dp(4);
+}
+
+.x-form-grow-sizer {
+	@extend %font-data;
+	padding: dp(6) dp(8);
+	min-height: dp(32);
+	line-height: dp(18);
 }
 
 .x-form{
@@ -317,7 +329,9 @@
 		.x-box-inner { //composite
 			overflow:visible;
 
-			.x-btn {
+	
+//	Merijn: This didn't play nice with formgroup
+/*		.x-btn {
 				top: dp(-2);
 				line-height: dp(32);
 				height: dp(32);
@@ -328,7 +342,8 @@
 						left:dp(4);
 					}
 				}
-			} 
+			}
+*/
 		}
 	}
 	
@@ -342,11 +357,16 @@
 	
 	&-display-field {
 		line-height: dp(32);
+		@extend %font-data;
 	}
 	
 	&-field {
 		@extend %font-data;
 		color: color($fg, 'text');
+		min-height: dp(32);
+		line-height: dp(18);
+		transition: border-color 100ms linear, box-shadow 225ms linear;
+		border-radius: dp(4);
 		&.x-item-disabled {
 			background-color: color($bg, 'background');
 		}
@@ -354,17 +374,22 @@
 			border-radius: 0;
 			border-left: 1px solid color($fg, 'line');
 		}
+		
+		&[readonly] {
+			background-color: color($bg, 'readonly');
+		}
+		
+		&.x-triggerfield-selectonly {
+			background-color:color($bg, 'box');
+		}
+		
 	}
-	&-text, textarea.x-form-field {
+	&-text, textarea.x-form-field, &-time {
 		@extend %font-data;
 		background-color:color($bg, 'box');
-		border-radius: dp(4);
 		border: 1px solid color($fg, 'track');
 		display: inline-block;
 		padding: dp(6) dp(8);
-		min-height: dp(32);
-		line-height: dp(18);
-		transition: border-color 100ms linear, box-shadow 225ms linear;
 	}
 	
 	textarea.x-form-field {
@@ -394,13 +419,13 @@
 	&-checkbox {
 		position:absolute;
 		opacity: 0;
-		+ label::before {
+		+ .x-form-cb-label::before {
 			@extend %checkbox;
 		}
-		&:checked + label::before {
+		&:checked + .x-form-cb-label::before {
 			content: 'check_box';
 		}
-		&:focus + label::before {
+		&:focus + .x-form-cb-label::before {
 			@include var(background-color, c-primary-tp);
 		}
 	}
@@ -427,7 +452,8 @@
 	}
 	&-item {
 		margin-bottom:dp(4);
-		@extend %font-caption;
+		//Following line made grid in forms appear in disabled like text
+		/*@extend %font-caption;*/
 	}
 
 	&-invalid-icon:before {
@@ -448,8 +474,10 @@
 	
 	&-helptext {
 		@extend %font-caption;
-		white-space: pre-wrap;
+		/*white-space: pre-wrap;*/
 		line-height: 1.6em;
+		overflow: hidden;
+		text-overflow: ellipsis;
 	}
 	
 }
@@ -533,24 +561,22 @@
 
 .x-form-invalid.x-form-composite .x-form-invalid {
 	background-color:#fff;
-	background-image:url(../images/default/grid/invalid_line.gif);
+	/*background-image:url(../images/default/grid/invalid_line.gif);*/
 	border-color:#c30;
 }
 
 .x-form-inner-invalid, textarea.x-form-inner-invalid {
 	background-color:#fff;
-	background-image:url(../images/default/grid/invalid_line.gif);
+	/*background-image:url(../images/default/grid/invalid_line.gif);*/
 }
 
-.x-form-grow-sizer {
-	font:normal 12px tahoma, arial, helvetica, sans-serif;
-}
+
 .x-form-plainfield,
 .x-form-item-label,
 .x-form-label-left label.x-form-item-label{
 	@extend %font-label;
 	line-height: dp(16);
-	padding: dp(8) 0 dp(4) 0;
+	padding: dp(8) dp(8) dp(4) 0;
 }
 
 
@@ -627,7 +653,7 @@
 	@extend %font-button;
 	letter-spacing: 0; // for button icons
 	height: dp(36); // 32 for dense
-	line-height: dp(36); // 32 for dense
+	line-height: dp(36) - 2; // 32 for dense
 	border-radius: $borderRadius;
 	vertical-align: middle;
 	white-space: nowrap;
@@ -640,6 +666,20 @@
 	button {
 		min-height: dp(32);
 	}
+	
+	.x-form-composite & {
+		height: dp(32);
+		width: dp(32);
+		line-height: dp(32) - 2;
+		button {
+			min-height: dp(32);
+			min-width: dp(32);
+			&::before {
+				top: dp(4);
+				left: dp(4);
+			}
+		}
+	}
 
 	&.x-item-disabled {
 		.x-btn-text {
@@ -650,9 +690,14 @@
 	&.raised {
 		@extend .z2;
 		@include var(background-color, c-primary);
-		color:white;
+		button.x-btn-text {
+			color:white;
+		}
 		&.x-btn-focus, &.x-btn-over {
 			@extend .z4;
+			button.x-btn-text {
+				color: $cPrimary;
+			}
 		}
 		&.x-btn-pressed {
 			@extend .z8;
@@ -670,8 +715,8 @@
 	// transition: background 400ms cubic-bezier(0.25, 0.8, 0.25, 1), box-shadow 280ms cubic-bezier(0.4, 0, 0.2, 1);
    & button, & em {
 		@extend %font-button;
-		color: inherit;
-   }
+		color: inherit;		
+   }	 
 	//  &-click {
 	//    @extend .z2;
 	//    background-color: color($grey, 200);
@@ -744,6 +789,8 @@
 	&-text-icon button::before{
 		@extend %icon;
 		padding-right: dp(8);
+		//MS Why was this here?
+		/*margin-top: dp(-4);*/
 	}
    &-pressed {
 		//background-color: color($bg, 'hover');
@@ -754,20 +801,24 @@
    }
 	
 	&-mc em.x-btn-arrow > button {
-		padding-right: dp(8);
+		/*padding-right: dp(8);*/
 		&:after {
 			@extend %icon;
 			content: 'arrow_drop_down';
 		}
 	}
 }
-.x-panel-btns .x-toolbar-left-row td.x-toolbar-cell {
-	padding: 0 dp(8) 0 0;
-}
-.x-panel-btns td.x-toolbar-cell {
-	padding: 0 0 0 dp(8);
-}
-
+.x-panel-btns {
+	.x-btn {
+		//border: 1px solid rgba(0, 0, 0, 0.12);
+	}
+	.x-toolbar-left-row td.x-toolbar-cell {
+		padding: 0 dp(8) 0 0;
+	}
+	td.x-toolbar-cell {
+		padding: 0 0 0 dp(8);
+	}
+} 
 
 .x-btn-tl, .x-btn-tr, .x-btn-tc, .x-btn-ml, .x-btn-mr, .x-btn-bl, .x-btn-br, .x-btn-bc{
 	height: 0px; // remove sliding doors
@@ -841,7 +892,7 @@
 
 
 // TOOLBAR
-.x-panel-tbar, .x-panel-bbar {
+.x-panel-tbar, .x-panel-bbar, .x-window-tbar, .x-window-bbar {
 	position:relative;
 	.x-form-text {
 		margin: 0 dp(8) 0 0;
@@ -874,12 +925,26 @@
 		}
 	}
 }
+
+.x-panel-bbar
+{
+	.x-searchbar {
+		input {
+			min-height:dp(40);
+			+ .x-form-search-trigger {
+				min-height:dp(40);
+			
+			}
+		}
+	}
+}
+
 .x-toolbar{
 	height: dp(56);
 	padding:0 dp(8) 0 0;
 	
-	&.go-paging-tb {
-		height: dp(48);
+	&.go-paging-tb, .go-paging-tb & {
+		height: dp(40);
 	}
 	&-ct {
 		height: 100%;
@@ -1033,8 +1098,15 @@
 //############
 //### GRID ### 
 //############
+
+.x-grid3-no-row-borders{
+	.x-grid3-row{
+		border-bottom: 0px;
+	}
+}
+
 .x-grid3{
-	background-color: color($bg, "card");
+	background-color: color($bg, "box");
 	&-scroller {
 		-webkit-overflow-scrolling: touch;
 	}
@@ -1056,7 +1128,7 @@
 			@extend %font-caption;
 			border-left:0;
 			border-right: 1px solid;
-			border-image: linear-gradient(to bottom, transparent, color($fg, 'divider')) 1 100%;
+			border-image: linear-gradient(to bottom, transparent, color($fg, 'line')) 1 100%;
 			height: dp(32);
 			
 			&.x-grid3-cell-last {
@@ -1077,14 +1149,11 @@
 		//margin-top: dp(9); //don't understand why +1 here?
 		height:dp(32);
 		border-bottom: 1px solid color($fg, 'line');
-		&-offset {
-			padding-left:0;
-		}
 	}
 	&-cell-inner, &-hd-inner {
 		@extend .ellipsis;
-		min-height: dp(40);
-		padding: dp(10) dp(4) dp(10) dp(16); // 10 top = middle of row line-height 20dp
+		// min-height: dp(40); //Seems to cause slightly off positioning in grid cells
+		padding: dp(6) dp(8) dp(6) dp(16); // 10 top = middle of row line-height 20dp
 		.ux-row-action-cell & {
 			padding: dp(8) 0;
 		}
@@ -1094,7 +1163,7 @@
 			right: dp(14);
 		}
 	}
-	&-row-checker, &-hd-checker {
+	&-row-checker, .x-grid3-hd-checker &-hd-checker {
 		height:dp(20); // same as line-height of text
 		&::before {
 			@extend %checkbox;
@@ -1105,6 +1174,9 @@
 			content: 'check_box';
 		}
 	}
+	
+	
+	
 	&-row {
 		border:0;
 		border-bottom:1px solid color($fg, 'divider');
@@ -1129,7 +1201,8 @@
 		}
 	}
 	&-col {
-		padding: dp(8) 0;
+		padding: dp(4) 0;
+		position: relative;
 	}
 	&-check-col-td > div {
 		text-overflow: initial;
@@ -1159,7 +1232,7 @@
 			//padding-left: dp(8) !important;
 		}
 		&-selected{
-			background-color: $cSelected !important;
+			background-color: $cSelected;
 			color:#000;
 			span{
 				color:#000 !important;
@@ -1176,7 +1249,7 @@
 	}
 	&-hd-inner {
 		min-height: dp(20);
-		padding: dp(2) dp(16) dp(2) dp(16);
+		padding: 0 dp(8) 0 dp(16);
 	}
 	&-dirty-cell > div {
 		border-radius: $borderRadius;
@@ -1262,36 +1335,50 @@ td.x-grid3-hd-over .x-grid3-hd-inner, td.sort-desc .x-grid3-hd-inner, td.sort-as
 	//background-image:url(../images/default/grid/grid3-hrow-over.gif);
 
 }
-.sort-asc, .sort-desc {
-	position: relative;
+// .sort-asc, .sort-desc {
+// 	position: relative;
+// 	&:after{
+// 		@extend %icon;
+// 		color: color($fg, 'hint-text');
+// 		left: dp(14);
+// 		top: dp(10); 
+// 		font-size: sp(13);
+// 		position:absolute;
+// 	}
+	
+// 	.x-grid3-hd-inner {
+// 		padding-left: dp(32);
+// 	}
+// }
+// .sort-asc:after { //}.x-grid3-sort-icon {
+// 	content: 'arrow_upward';
+// 	//background-image: url(../images/default/grid/sort_asc.gif);
+// }
+// .sort-desc:after {
+// 	content: 'arrow_downward';
+// }
+
+.x-grid3-sort-icon {
+	background: none;
 	&:after{
 		@extend %icon;
 		color: color($fg, 'hint-text');
 		left: dp(14);
 		top: dp(10); 
 		font-size: sp(13);
-		position:absolute;
+		margin: 0 dp(4);		
+		content: 'arrow_downward';
 	}
-	
-	.x-grid3-hd-inner {
-		padding-left: dp(32);
-	}
-}
-.sort-asc:after { //}.x-grid3-sort-icon {
-	content: 'arrow_upward';
-	//background-image: url(../images/default/grid/sort_asc.gif);
-}
-.sort-desc:after {
-	content: 'arrow_downward';
 }
 
-.sort-desc .x-grid3-sort-icon {
-	//background-image: url(../images/default/grid/sort_desc.gif);
+.sort-desc .x-grid3-sort-icon:after {
+	content: 'arrow_upward';
 }
 
 .col-move-top, .col-move-bottom{
 	width:dp(16);
 	height: dp(16);
+	pointer-events:none;
 	overflow:visible;
 	&:before {
 		@extend %icon;
@@ -1302,7 +1389,7 @@ td.x-grid3-hd-over .x-grid3-hd-inner, td.sort-desc .x-grid3-hd-inner, td.sort-as
 }
 .col-move-bottom:before{
 	content: 'arrow_drop_up';
-	top:dp(-32);
+	top:dp(-24);
 }
 
 td.grid-hd-group-cell {
@@ -1358,7 +1445,12 @@ td.grid-hd-group-cell {
 }
 
 .x-grid-group-hd {
-	border-bottom: 1px solid color($fg, 'divider');
+	// MS: Removed this becauise email view digressed
+	// border-bottom: 1px solid color($fg, 'line');
+	// border-top: 1px solid color($fg, 'line');
+	
+	border-bottom: 2px solid color($fg, 'divider');
+
 	div.x-grid-group-title {
 		@extend %font-caption;
 		/*@include var(color, c-primary);*/
@@ -1427,18 +1519,20 @@ td.grid-hd-group-cell {
 	color:color($fg, 'text');
 	opacity:1;
 	border:0;
-	padding: 0 dp(8) 0 dp(32);
+	padding: 0 dp(8) 0 dp(40);
 	background-color:#fff;
 	a { color:inherit;}
 }
 .x-dd-drag-proxy {
+	
+	line-height: dp(40);
 
 	.x-grid3-hd-inner{
 		border:0;
 	}
 }
 .x-dd-drop-icon:before {
-	padding: dp(4) dp(8);
+	padding: dp(2) dp(8);
 	@extend %icon;
 	.x-dd-drop-ok-add & {
 		content: 'add';
@@ -1467,10 +1561,28 @@ td.grid-hd-group-cell {
 // ############
 .x-tree{
 	&-node-el {
-		padding: dp(8);
+		padding: dp(6) dp(8);
 		padding-right: 0;
 		display: table;
 		width: 100%;
+		
+		.secondary {
+			float: right;
+			
+			button {
+				padding:0;
+				margin: 0;
+				cursor: pointer;	
+				display: none;
+			}
+		}
+		&:hover, &.x-tree-selected {
+			.secondary {
+				button {
+					display: block;					
+				}
+			}
+		}
 	}
 	&-node-indent {
 		width:0.01%;
@@ -1484,13 +1596,15 @@ td.grid-hd-group-cell {
 	&-ec-icon, &-node-indent,&-ec-icon,&-node-icon, &-node-anchor, &-node-cb {
 		display:table-cell;
 		vertical-align: top; //required for Firefox
+		
+		
 	}
 	&-node-cb {
 		padding: 0 dp(4);
 	}
 	&-node-anchor {
 		width:auto;
-		overflow:hidden;
+		overflow:visible;
 		position:relative;
 	}
 	&-ec-icon {
@@ -1523,8 +1637,10 @@ td.grid-hd-group-cell {
 	}
 	&-node {
 		@extend %font-body1;
-		.x-tree-selected {background-color: $cSelected;}
+		
 		.x-tree-node-over {background-color: $cHover;}
+		.x-tree-selected {background-color: $cSelected;}
+		
 		&-indent span {
 			display:inline-block;
 			width: dp(24);
@@ -1537,33 +1653,38 @@ td.grid-hd-group-cell {
 		}
 	}
 }
-.x-tree-node a span, .x-dd-drag-ghost a span {
+.x-tree-node a > span, .x-dd-drag-ghost a > span {
 	@extend .ellipsis;
-	padding: 0 dp(8);
+	padding: 0 dp(6);
 	display:block;
 	top:0;
 	left:0;
 	right:0;
 	position:absolute;
-	> * {
+	//Required for email tree view only:
+	> *:not(.secondary) {
 		pointer-events: none;
 	}
 }
-.x-tree-node .x-tree-drag-append a span {
-    background-color: $cHover;
-	 border: 2px dashed white;
+
+.x-tree-node a {	
+	border: 1px solid transparent;
+}
+.x-tree-node .x-tree-drag-append a {
+   background-color: $cHover;
+	 border: 1px dashed white;
 }
 
 .x-tree-node .x-tree-node-inline-icon:not(.go-icon) {
    background-image: none;
 }
 
-.x-tree-node-loading a span{
+.x-tree-node-loading a{
 	font-style: italic;
 	color:#444444;
 }
 
-.x-tree-node .x-tree-node-disabled a span{
+.x-tree-node .x-tree-node-disabled a{
 	color:gray !important;
 }
 
@@ -1583,7 +1704,7 @@ td.grid-hd-group-cell {
 	border-top-color:#36c;
 }
 
-.x-tree-node .x-tree-drag-append a span{
+.x-tree-node .x-tree-drag-append a {
 	background-color:#ddd;
 	border-color:gray;
 }
@@ -1661,7 +1782,7 @@ td.grid-hd-group-cell {
 			border:0;
 		}
 		.x-date-today a {
-			border:0;
+			border: 1px solid currentColor;
 			padding:0;
 			font-weight: 700;
 			@include var(color, c-primary);
@@ -1840,6 +1961,13 @@ td.x-date-mp-sep {
 	transform-origin: left top 0px;
 	transform: scale(1);
 	will-change: transform, opacity;
+	
+	&.x-menu-no-icons {
+		.x-menu-item-icon {
+			display: none;
+		}		
+	}
+	
 	&.x-hide-offsets {
 		opacity: 0;
 		transform: scale(0.6);
@@ -2057,7 +2185,7 @@ $menuScrollerSize : dp(4);
 	}
 	&-item {
 		min-height: dp(32);
-		padding: dp(8) dp(8) dp(8) dp(24);
+		padding: dp(8);
 	}
 	&-small {
 		@extend %font-caption;
@@ -2106,22 +2234,23 @@ $menuScrollerSize : dp(4);
 	&-header {
       border: 0;
 		border-top: 1px solid color($fg, 'divider');
-      padding: 0 dp(8) 0 dp(8);
+      padding: 0 dp(8) 0 dp(14);
       height: dp(56);
       line-height: dp(56);
       //background-color:$cPrimary;
 		&-text {
 			@extend %font-subheading;
-			padding-left: dp(8);
+			//padding-left: dp(8);
 		}
       .x-border-panel > & {
 			background-color: transparent;
       }
 	}
 	&-icon::before { 
-		@extend %icon;
-		padding-right: dp(16);
+		@extend %icon;		
 		margin-top: dp(-4);
+		float: left;
+		padding: dp(20) sp(16) dp(20) 0;
 	}
 	&-collapsed {
 		.x-window-tl {
@@ -2194,6 +2323,7 @@ $menuScrollerSize : dp(4);
 
 .x-panel-ghost {
 	@extend .z24;
+	border-radius: $borderRadius;
 	visibility:visible;
 	background-color:white;
 }
@@ -2219,6 +2349,7 @@ $menuScrollerSize : dp(4);
 .x-window{
 	background-color:color($bg,'dialog');
 	border-radius: $borderRadius;
+	overflow:hidden;
 	//border: 1px solid color($fg, 'line');
 	&-footer.x-panel-btns {
 		padding: dp(8);
@@ -2229,10 +2360,12 @@ $menuScrollerSize : dp(4);
 		border-radius: $borderRadius;
 		padding: 0 dp(8) 0 dp(16);
 		&-text {
-			display:inline-block;
-			height: dp(16);
-			line-height: dp(16);
-			margin: dp(20) 0;
+			display:block;
+			overflow:hidden;
+			text-overflow: ellipsis;
+			white-space: nowrap;
+			height: dp(56);
+			line-height: dp(56);			
 		}
 	}
 	&-mc {
@@ -2274,7 +2407,7 @@ body.x-body-masked .x-window-plain .x-window-mc {
 // HTML
 .x-html-editor-wrap {
 	border-radius: dp(4);
-	border:1px solid color($fg, 'divider');
+	border:1px solid color($fg, 'track');
 }
 .x-html-editor-tb .x-toolbar {
 	height: dp(40);
@@ -2289,6 +2422,7 @@ body.x-body-masked .x-window-plain .x-window-mc {
 }
 .x-html-editor-tb .x-btn-text {
 	background-image: none; //url(wysiwyg.gif);
+	color: color($fg, 'secondary-text');
 }
 
 // ####################
@@ -2309,7 +2443,7 @@ body.x-body-masked .x-window-plain .x-window-mc {
 	color:color($fg, 'text');
 	border-bottom: 0 !important;
 	&:hover {
-		background-color: color($grey, 200);
+		background-color: color($fg, 'hover');
 	}
 	.x-panel-collapsed & {
 		border-bottom: 1px solid color($fg, 'divider') !important;
@@ -2553,6 +2687,92 @@ input[value="0"] + .x-slider .x-slider-thumb {
 
 .x-window-dlg .ext-mb-error {
 	background-image:url(../images/default/window/icon-error.gif);
+}
+
+// EXTENSION
+
+.x-switch {
+	position: relative;
+	min-height: dp(24);
+	padding-left: dp(4);
+	> .thumb {
+		position: absolute;
+		pointer-events: none;
+		transition: transform linear .06s, background-color linear .08s;
+		height: dp(24);
+		width: dp(24);
+		top: dp(-2);
+		left: dp(0);
+		&::after { // nop
+							 @extend .z2;
+							 content: '';
+							 position:absolute;
+							 top:0;
+							 height: dp(24);
+							 width: dp(24);
+							 background-color: color($grey, 50);
+							 z-index:1;
+							 border-radius: 50%;
+		}
+		&::before { // shade
+								content: "";
+								position:absolute;
+								top: dp(-8);
+								left: dp(-8);
+								bottom: dp(-8);
+								right: dp(-8);
+								background-color: transparent;
+								border-radius: 50%;
+		}
+	}
+	> .track {
+		background-color: color($fg, 'disabled');
+		position:absolute;
+		height: dp(16);
+		top:dp(3); // track in middle of label lineheight
+		width: dp(40);
+		border-radius: dp(8);
+		pointer-events: none;
+		transition: background-color linear .08s;
+	}
+	> input {
+		width: dp(40);
+		height: dp(24);
+		opacity:0;
+		&:checked {
+			~ .thumb {
+				transform: translate(dp(24), 0);
+				&::after { @include var(background-color, c-primary);}
+				&::before {@include var(border-color, c-primary);}
+			}
+			~ .track {
+				@include var(background-color, c-primary-tp);
+			}
+		}
+		&:focus {
+			~ .thumb::before {
+				background-color: rgba(black, .12);
+			}
+			&:checked ~ .thumb::before {
+				background-color: rgba($cPrimary, .2);
+			}
+		}
+
+		&[disabled] {
+			~ .thumb {
+				background-color: color($grey, 400);
+				&::before {
+					background-color: rgba(black, .12);
+				}
+			}
+			~ .track {
+				background-color: color($fg, 'divider');
+			}
+		}
+		~ label {
+			padding-left: dp(56);
+		}
+	}
 }
 
 // superbox extension

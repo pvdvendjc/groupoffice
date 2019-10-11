@@ -2,11 +2,12 @@
 
 namespace GO\Sync;
 
-use go\modules\core\users\model\User;
+use GO\Base\Module;
 use go\core\orm\Mapping;
 use go\core\orm\Property;
+use go\core\model\User;
+use GO\Sync\Model\UserAddressBook;
 use GO\Sync\Model\UserNoteBook;
-use GO\Base\Module;
 use GO\Sync\Model\UserSettings;
 
 
@@ -23,7 +24,9 @@ class SyncModule extends Module{
 	
 
 	public static function onMap(Mapping $mapping) {
-		$mapping->addRelation('syncSettings', UserSettings::class, ['id' => 'user_id'], false)
-						->addRelation('syncNoteBooks', UserNoteBook::class, ['id' => 'userId']);
+		$mapping->addHasOne('syncSettings', UserSettings::class, ['id' => 'user_id'])
+						->addArray('syncNoteBooks', UserNoteBook::class, ['id' => 'userId'])
+						->addArray('syncAddressBooks', UserAddressBook::class, ['id' => 'userId']);
+		
 	}
 }

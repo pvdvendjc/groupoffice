@@ -45,7 +45,7 @@ class Disk implements CacheInterface {
 	 */
 	public function set($key, $value, $persist = true) {
 
-		GO()->debug("CACHE: ". $key);
+		//GO()->debug("CACHE: ". $key);
 		//don't set false values because unserialize returns false on failure.
 		if ($key === false) {
 			return true;
@@ -148,7 +148,7 @@ class Disk implements CacheInterface {
 		}
 	}
 
-	public function isSupported() {
+	public static function isSupported() {
 		$folder = App::get()->getSettings()->getDataFolder();
 		
 		if(!$folder->isWritable()) {

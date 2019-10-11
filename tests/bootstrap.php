@@ -19,6 +19,7 @@ $config = parse_ini_file(__DIR__ . '/config.ini', true);
 $config['general']['dataPath'] = $dataFolder->getPath();
 $config['general']['tmpPath'] = $dataFolder->getFolder('tmp')->getPath();
 $config['general']["cache"] = \go\core\cache\Disk::class;
+$config['branding']['name'] = 'Group-Office';
 
 if($installDb) {
 	$dataFolder->delete();
@@ -34,12 +35,13 @@ if($installDb) {
 
 	}
 	$pdo->query("CREATE DATABASE groupoffice_phpunit");
+	$pdo = null;
 }
 
 //Install fresh DB
 
 try {
-	App::get()->setConfig($config)->setAuthState(new State());
+	App::get()->setConfig(["core" => $config]);
 	
 	if($installDb) {
 		$admin = [
@@ -52,9 +54,13 @@ try {
 		$installer = new \go\core\Installer();	
 		$installer->install($admin, [
 				new go\modules\community\notes\Module(),
-				new go\modules\community\test\Module()
+				new go\modules\community\test\Module(),
+				new go\modules\community\addressbook\Module(),
 				]);
 	}
+
+	GO()->setAuthState(new State());
+
 } catch (Exception $e) {
 	echo $e;
 	throw $e;

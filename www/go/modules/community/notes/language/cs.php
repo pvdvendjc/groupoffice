@@ -12,4 +12,6 @@ return array (
   'content' => 'Obsah',
   'manageCategories' => 'Správa kategorií',
   'Content is encrypted' => 'Obsah je šifrován',
+  'Invalid password' => 'Neplatné heslo',
+  'Add test' => 'Přidat test',
 );

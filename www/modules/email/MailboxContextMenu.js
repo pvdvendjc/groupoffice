@@ -44,7 +44,8 @@ GO.email.MailboxContextMenu = Ext.extend(Ext.menu.Menu,{
 							{								
 								this.treePanel.refresh(node);
 							},
-							fail : function(){
+							fail : function(response, options, result){
+								Ext.Msg.alert(t("Error"), result.feedback);
 								this.treePanel.refresh();
 							},
 							scope: this
@@ -105,9 +106,10 @@ GO.email.MailboxContextMenu = Ext.extend(Ext.menu.Menu,{
 										
 									
 								},
-								fail : function(){
-								this.treePanel.refresh();
-							},
+								fail : function(response, options, result){
+									Ext.Msg.alert(t("Error"), result.feedback);
+									this.treePanel.refresh();
+								},
 								scope: this
 							});
 						}
@@ -127,7 +129,7 @@ GO.email.MailboxContextMenu = Ext.extend(Ext.menu.Menu,{
 
 				var tpl = new Ext.Template(t("Are you sure you want to mark all messages in folder '{name}' as read?", "email"));
 
-				Ext.MessageBox.confirm(t("Confirm"), tpl.applyTemplate({name:node.attributes.text}), function(btn){
+				Ext.MessageBox.confirm(t("Confirm"), tpl.applyTemplate({name:node.attributes.name}), function(btn){
 					if(btn=='yes')
 					{
 						GO.request({

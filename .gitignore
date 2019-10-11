@@ -1,3 +1,6 @@
+forum
+.vscode
+.gitmodules
 /nbproject
 /*-license.txt
 .idea
@@ -67,6 +70,5 @@
 !/www/modules/webodf
 .DS_Store
 .sass-cache
-www/billing-6.3-license.txt
-www/documents-6.3-license.txt
-www/groupoffice-pro-6.3-license.txt
+lang.csv
+.gitmodules

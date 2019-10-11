@@ -1,12 +1,18 @@
 <?php
+use go\core\App;
+use go\core\cli\State;
+
 if(!empty($argv[1])) {
 	define('GO_CONFIG_FILE', $argv[1]);
 }
 
 require('GO.php');
 
+App::get()->setAuthState(new State());
+GO::session()->runAsRoot();
+
 //new framework
-\go\modules\core\core\model\CronJobSchedule::runNext();
+\go\core\model\CronJobSchedule::runNext();
 
 
 GO()->debug("Running cron for legacy framework");

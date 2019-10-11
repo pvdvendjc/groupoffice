@@ -175,7 +175,7 @@ Ext.extend(GO.base.email.EmailEditorPanel, Ext.Panel, {
 		config.items.push(this.hiddenAttachmentsField);
 		config.items.push(this.hiddenInlineImagesField);
 		
-		var anchorHeight = config.enableSubjectField ? "-" + dp(24) : "100%";
+		var anchorHeight = config.enableSubjectField ? "-" + dp(32) : "100%";
 
 
 		this.htmlEditor = new GO.form.HtmlEditor({
@@ -352,7 +352,7 @@ Ext.extend(GO.base.email.EmailEditorPanel, Ext.Panel, {
 			attachmentsElHeight = dp(89);
 			this.attachmentsView.getEl().setHeight(attachmentsElHeight);
 		}			
-		height += attachmentsElHeight+attachmentsEl.getMargins('tb')  + dp(16);
+		height += attachmentsElHeight+attachmentsEl.getMargins('tb')  + dp(24);
 		
 		if(this.enableSubjectField)
 			height+=dp(32);
@@ -371,6 +371,12 @@ Ext.extend(GO.base.email.EmailEditorPanel, Ext.Panel, {
 		this.htmlEditor.syncSize();
 		this.ownerCt.doLayout();
 	},
+
+	// doLayout: function() {
+		
+	// 	GO.base.email.EmailEditorPanel.superclass.doLayout.call(this, arguments);
+	// 	this.htmlEditor.syncSize();
+	// },
 	
 	initHtmlEditorPlugins : function(htmlEditorConfig) {		
 		// optional image attachment
@@ -463,7 +469,7 @@ Ext.extend(GO.base.email.EmailEditorPanel, Ext.Panel, {
 			);
 		
 			uploadItems.push({
-				iconCls:'btn-groupoffice',
+				iconCls:'ic-folder',
 				text : t("Add from Group-Office", "email").replace('{product_name}', GO.settings.config.product_name),
 				handler : function()
 				{

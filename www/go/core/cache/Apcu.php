@@ -15,11 +15,12 @@ use go\core\cache\CacheInterface;
 class Apcu implements CacheInterface {
 
 
-
+	private $prefix;
 	private $cache;
-
-
 	
+	public function __construct() {
+		$this->prefix = GO()->getConfig()['core']['db']['name'];
+	}
 
 	/**
 	 * Store any value in the cache
@@ -37,7 +38,7 @@ class Apcu implements CacheInterface {
 
 
 		if($persist) {
-			apcu_store($key, $value);
+			apcu_store($this->prefix . '-' .$key, $value);
 		}
 		
 		$this->cache[$key] = $value;
@@ -55,7 +56,7 @@ class Apcu implements CacheInterface {
 		}
 		$success = false;
 		
-		$value = apcu_fetch($key, $success);
+		$value = apcu_fetch($this->prefix . '-' .$key, $success);
 		
 		if(!$success) {
 			return null;
@@ -72,7 +73,7 @@ class Apcu implements CacheInterface {
 	 */
 	public function delete($key) {		
 		unset($this->cache[$key]);
-		apcu_delete($key);
+		apcu_delete($this->prefix . '-' . $key);
 	}
 
 	private $flushOnDestruct = false;
@@ -104,7 +105,7 @@ class Apcu implements CacheInterface {
 		}
 	}
 
-	public function isSupported() {
+	public static function isSupported() {
 		return extension_loaded('apcu');
 	}
 }

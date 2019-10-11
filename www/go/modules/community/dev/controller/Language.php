@@ -1,6 +1,6 @@
 <?php
 
-namespace go\modules\community\dev\controller;
+namespace go\modules\community\dev	\controller;
 
 use go\core\Controller;
 use go\core\Environment;
@@ -19,6 +19,12 @@ class Language extends Controller {
 	const DELIMITER = ';';
 	const ENCLOSURE = '"';
 
+	protected function authenticate() {  
+    if (!GO()->getAuthState()->isAuthenticated()) {			
+      throw new Exception(401, "Unauthorized");
+		}  	
+	}
+
 	public function export($params) {
 		GO()->getLanguage()->setLanguage($params['language']);
 
@@ -33,6 +39,7 @@ class Language extends Controller {
 		$rootFolder = Environment::get()->getInstallFolder();
 
 		$coreFiles = $rootFolder->getFolder("views/Extjs3/javascript")->find('/.*\.js/', false);
+		$coreFiles = array_merge($coreFiles, $rootFolder->getFolder("go/core/views/extjs3")->find('/.*\.js/', false));
 
 		$csvFile = File::tempFile('csv');
 
@@ -58,6 +65,12 @@ class Language extends Controller {
 
 		foreach ($packageFolders as $packageFolder) {
 			foreach ($packageFolder->getFolders() as $moduleFolder) {
+				
+				if(!$moduleFolder->exists()){
+					//broken symlink
+					continue;
+				}
+				
 				$files = $moduleFolder->find("/.*\.js/");
 				$strings = [];
 				foreach ($files as $file) {
@@ -89,10 +102,9 @@ class Language extends Controller {
 		$this->writeStrings("core", "core", $core, "*");
 
 		//todo, this is refsactored in master
-		$blob = Blob::fromTmp($csvFile->getPath());
+		$blob = Blob::fromTmp($csvFile);
 		$blob->type = "text/csv";
 		$blob->name = "lang.csv";
-		$blob->modified = time();
 		$blob->save();
 
 		Response::get()->addResponse(["blobId" => $blob->id]);
@@ -144,86 +156,8 @@ class Language extends Controller {
 		}
 	}
 
-	public function import($params) {
-		$file = new File($params['path']);
 
-		if (!$file->exists()) {
-			throw new \Exception("File not found " . $params['path']);
-		}
-		$this->handle = $file->open("r");
+	
 
-		if (!$this->handle) {
-			throw new \Exception("Could not open " . $params['path']);
-		}
-
-		$headers = fgetcsv($this->handle,0, self::DELIMITER, self::ENCLOSURE);
-
-
-		if (!$headers) {
-			throw new \Exception("Could not read CSV");
-		}
-		if (count($headers) < 5) {
-			throw new \Exception("Invalid CSV file (Header count != 5): First record: ".var_export($headers, true));
-		}
-
-		$lang = strtolower($headers[3]);
-
-		$data = [];
-
-		
-		while ($record = fgetcsv($this->handle, 0, self::DELIMITER, self::ENCLOSURE)) {
-			
-			try {
-				list($package, $module, $en, $translation, $source) = $record;
-			} catch(\Exception $e) {
-				echo "ERROR: Could not read record: ". var_export($record, true) ."\n\n";
-			}
-			
-
-			if (empty($translation)) {
-				continue;
-			}
-
-			if (!isset($data[$package])) {
-				$data[$package] = [];
-			}
-
-			if (!isset($data[$package][$module])) {
-				$data[$package][$module] = [];
-			}
-
-			if (preg_match("/(.*)\[(.*)\]/", $en, $matches)) {
-				$data[$package][$module][$matches[1]][$matches[2]] = $translation;
-			} else {
-				$data[$package][$module][$en] = $translation;
-			}
-		}
-		
-		$rootFolder = Environment::get()->getInstallFolder();
-
-		foreach ($data as $package => $modules) {
-
-			foreach ($modules as $module => $translations) {
-				if ($package == "legacy") {
-					$langFilePath = "modules/" . $module . "/language/" . $lang . ".php";
-				} else {
-					$langFilePath = "go/modules/" . $package . "/" . $module . "/language/" . $lang . ".php";
-				}
-				
-				
-				$file = $rootFolder->getFile($langFilePath);
-				
-				if ($file->exists()) {
-					$existingTranslations = require($file->getPath());
-					
-					$translations = array_merge($existingTranslations, $translations);
-				}
-				echo "Writing: ".$langFilePath."\n";
-				
-				$file->putContents("<?php\nreturn ".var_export($translations, true).";\n");
-			}
-		}
-		
-	}
 
 }

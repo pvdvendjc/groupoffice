@@ -40,8 +40,11 @@
 
 namespace GO\Site\Model;
 
+use go\core\http\Request;
 
 class Site extends \GO\Base\Db\ActiveRecord {
+	
+	use \go\core\orm\CustomFieldsTrait;
 	
 	/**
 	 *
@@ -55,48 +58,56 @@ class Site extends \GO\Base\Db\ActiveRecord {
 	
 	private static $fields;
 	
+	protected function init()
+	{
+		parent::init();
 
-	
-	private function _loadFields(){
-		//load cf
-		if(!isset(self::$fields) && \GO::modules()->isInstalled('customfields')){
-			$fields = \GO\Customfields\Model\Field::model()->findByModel('GO\Site\Model\Site', false);
-
-			self::$fields=array();
-			foreach($fields as $field){
-				self::$fields[$field->name]= $field;
-			}
+		if(Request::get()->isHttps()) {
+			$this->ssl = true;
 		}
 	}
+
+	
+//	private function _loadFields(){
+//		//load cf
+//		if(!isset(self::$fields) && \GO::modules()->isInstalled('customfields')){
+//			$fields = \GO\Customfields\Model\Field::model()->findByModel('GO\Site\Model\Site', false);
+//
+//			self::$fields=array();
+//			foreach($fields as $field){
+//				self::$fields[$field->name]= $field;
+//			}
+//		}
+//	}
 	
 	/**
 	 * Site model is cached in the session so we need to reload the static variables
 	 * on wake up.
 	 */
-	public function __wakeup() {
-		parent::__wakeup();
-		
-		$this->_loadFields();
-	}
-	
-	public function __get($name) {
-		
-		$this->_loadFields();
-		
-		if(isset(self::$fields[$name])){
-			return $this->getCustomFieldValueByName($name);
-		}  else {
-			return parent::__get($name);
-		}
-
-	}
-
-	/*
-	 * Attach the customfield model to this model.
-	 */
-	public function customfieldsModel() {
-		return 'GO\Site\Customfields\Model\Site';
-	}
+//	public function __wakeup() {
+//		parent::__wakeup();
+//		
+//		$this->_loadFields();
+//	}
+//	
+//	public function __get($name) {
+//		
+//		$this->_loadFields();
+//		
+//		if(isset(self::$fields[$name])){
+//			return $this->getCustomFieldValueByName($name);
+//		}  else {
+//			return parent::__get($name);
+//		}
+//
+//	}
+//
+//	/*
+//	 * Attach the customfield model to this model.
+//	 */
+//	public function customfieldsModel() {
+//		return 'GO\Site\Customfields\Model\Site';
+//	}
 	
 	/**
 	 * Enable this function if you want this model to check the acl's automatically.
@@ -232,46 +243,6 @@ class Site extends \GO\Base\Db\ActiveRecord {
 		}
 		
 		return $treeNodes;
-	}
-	
-	public function getApacheConfig(){
-		return '
-<VirtualHost *:80>
-
-<Directory /var/www/groupoffice-4.1/www/modules/site>
- Options FollowSymLinks
- AllowOverride All
-
-				RewriteEngine On
-				RewriteBase /
-
-				RewriteCond %{REQUEST_FILENAME} !-f
-				RewriteCond %{REQUEST_FILENAME} !-d
-				RewriteRule ^(.*)\?*$ index.php/$1 [L,QSA]
-</Directory>
-
-DocumentRoot /var/www/groupoffice-4.1/www/modules/site
-Alias /public /home/groupoffice/site/1/public
-ServerName www.giralisgroep.nl
-#ErrorLog /var/log/apache2/giralis.nl.log
-</VirtualHost>
-		';
-	}
-	
-	 public function getCustomFieldValueByName($cfName) {
-
-		if (!key_exists($cfName, $this->_cf)) {
-
-//			$column = $this->getCustomfieldsRecord()->getColumn(self::$fields[$cfName]->columnName());
-//			if(!$column)
-//				return null;
-
-			$value = $this->getCustomfieldsRecord()->{self::$fields[$cfName]->columnName()};
-
-			$this->_cf[$cfName] = $value;
-		}
-
-		return $this->_cf[$cfName];
 	}
 
 	public static function isExpandedNode($nodeId) {

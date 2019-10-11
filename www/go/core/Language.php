@@ -5,7 +5,7 @@ namespace go\core;
 use Exception;
 use go\core\fs\File;
 use go\core\jmap\Request;
-use go\modules\core\modules\model\Module;
+use go\core\model\Module;
 
 class Language {
 
@@ -30,7 +30,7 @@ class Language {
 	}
 	
 	public function setLanguage($isoCode = null) {
-		
+		$old = $this->getIsoCode();
 		if(!isset($isoCode)) {
 			$isoCode = $this->getBrowserLanguage();
 		}
@@ -43,6 +43,8 @@ class Language {
 			$this->isoCode = $isoCode;
 			$this->data = [];
 		}
+
+		return $old;
 		
 	}
 	
@@ -107,55 +109,67 @@ class Language {
 		} 
 		
 		if(!isset($this->data[$package][$module])) {
-
-			$langData = [];
+			
+			$langData = new util\ArrayObject();
+			
 			//Get english default
 			$file = $this->findLangFile('en',$package, $module);
 			if ($file->exists()) {
-				$langData = $this->loadFile($file);
+				$langData = new util\ArrayObject($this->loadFile($file));
+			} else {
+				GO()->warn('No default(en) language file for module "'.$package.'/'.$module.'" defined.');
 			}
 
 			//overwirte english with actual language
 			if ($this->isoCode != 'en') {
 				$file = $this->findLangFile($this->isoCode, $package, $module);
 				if ($file->exists()) {
-					$langData = array_merge($langData, $this->loadFile($file));
+					$langData->mergeRecursive($this->loadFile($file));
 				}
 			}
 
 			$file = $this->findLangOverride($this->isoCode, $package, $module);
 			if ($file->exists()) {
-				$langData = array_merge($langData, $this->loadFile($file));
+				$langData->mergeRecursive($this->loadFile($file));
 			}
 			
-			$productName = GO()->getConfig()['branding']['name'];
+			$productName = GO()->getConfig()['core']['branding']['name'];
 
 			foreach ($langData as $key => $translation) {
+				
+				if(!is_string($translation)) {
+					continue;
+				}
 							
-					//branding
-					$langData[$key]  = str_replace(
-									[
-											"{product_name}",
-											"GroupOffice",
-											"Group-Office",
-											"Group Office"
-									], 
-									[
-											$productName,
-											$productName,
-											$productName,
-											$productName
-									
-									], $langData[$key]);
+				//branding
+				$langData[$key]  = str_replace(
+								[
+										"{product_name}",
+										"GroupOffice",
+										"Group-Office",
+										"Group Office"
+								], 
+								[
+										$productName,
+										$productName,
+										$productName,
+										$productName
+
+								], $langData[$key]);
 			}
 
-			$this->data[$package][$module] = $langData;			
+			$this->data[$package][$module] = $langData->getArray();			
 		}
 	}
 	
 	private function loadFile($file) {
 		
-		$langData = require($file);
+		try {
+			$langData = require($file);
+		} catch(\ParseError $e) {
+			ErrorHandler::logException($e);
+			$langData = [];
+		}
 		if(!is_array($langData)){
 			throw new \Exception("Invalid language file  " . $file);
 		}
@@ -179,6 +193,8 @@ class Language {
 		
 		if($package == "legacy") {
 			$folder = Environment::get()->getInstallFolder()->getFolder('modules/' . $module .'/language');
+		} else if($package == "core" && $module == "core") {
+			$folder = Environment::get()->getInstallFolder()->getFolder('go/core/language');
 		} else
 		{
 			$folder = Environment::get()->getInstallFolder()->getFolder('go/modules/' . $package . '/' . $module .'/language');

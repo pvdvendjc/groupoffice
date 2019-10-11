@@ -72,7 +72,7 @@ GO.CheckerWindow = function(config){
 		scope: this
 	},
 	{
-		iconCls:'btn-dismiss',
+		iconCls:'ic-timer',
 		text:t("Snooze"),
 		menu:snoozeMenu
 	},'-',
@@ -158,7 +158,7 @@ GO.CheckerPanel = Ext.extend(function(config){
 		autoWidth:true,
 		align : 'center',
 		actions : [{
-			iconCls : 'btn-dismiss',
+			iconCls : 'ic-timer',
 			qtip: t("Snooze")
 		},{
 			iconCls : 'btn-delete',
@@ -173,7 +173,7 @@ GO.CheckerPanel = Ext.extend(function(config){
 			grid.getSelectionModel().selectRow(row);
 
 			switch(action){
-				case 'btn-dismiss':
+				case 'ic-timer':
 					this.doTask('snooze_reminders', record.get('snooze_time'));
 					break;
 				case 'btn-delete':
@@ -278,8 +278,13 @@ GO.CheckerPanel = Ext.extend(function(config){
 	GO.grid.GridPanel.superclass.constructor.call(this, config);
 	
 	this.on('rowdblclick', function (grid, index){
+		
 		var selectionModel = grid.getSelectionModel();
 		var record = selectionModel.getSelected();
+		
+		if(!record.data.model_name || !record.data.model_id) {
+			return;
+		}
 		
 		var parts = record.data.model_name.split("\\");		
 		go.Router.goto(parts[3].toLowerCase()+"/"+record.data.model_id);
@@ -394,7 +399,7 @@ Ext.extend(GO.Checker, Ext.util.Observable, {
 			run: this.checkForNotifications,
 			scope:this,
 			interval: GO.settings.config.checker_interval*1000,
-			//			interval:10000 // debug / test config
+						// interval: 10000 // debug / test config
 		});
 	},
   
@@ -447,8 +452,10 @@ Ext.extend(GO.Checker, Ext.util.Observable, {
 							});
 						} else if(id=="loginstatus") {
 							this.handleLoginstatusResponse(result[id]);
-						}	else if (id!='success') {
-							this.callbacks[id].callback.call(this.callbacks[id].scope, this, result[id],data);
+						}	else if (id!='success' && id!='feedback') {
+							if(this.callbacks[id]) {
+								this.callbacks[id].callback.call(this.callbacks[id].scope, this, result[id],data);
+							}
 						}
 						if (id=="emails" && result[id].email_status) {
 

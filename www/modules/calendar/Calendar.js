@@ -104,9 +104,23 @@ GO.calendar.MainPanel = function(config){
 	}
 
 	this.datePicker = new Ext.DatePicker({
+		flex: 1,
 		cls:'cal-date-picker',
 		showToday:false,
-		internalRender:true
+		internalRender:true,
+		showPrevMonth : function() {
+			this.update(this.activeDate.add('mo', -1));
+			// Do not show a selection when calendar updates
+			for(var i = 0; i < 42; i++) {
+				this.cells.elements[i].classList.remove('x-date-selected');
+			}
+		},
+		showNextMonth: function() {
+			this.update(this.activeDate.add('mo', 1));
+			for(var i = 0; i < 42; i++) {
+				this.cells.elements[i].classList.remove('x-date-selected');
+			}
+		}
 	});
 	
 	this.datePicker.on("select", function(datePicker, DateObj){
@@ -203,6 +217,18 @@ GO.calendar.MainPanel = function(config){
 		store: this.calendarsStore,
 		allowNoSelection:true,
 		tools: [{
+			id:'home',
+			qtip: t("My calendar"),
+			handler : function() {
+				this.setDisplay({
+					group_id: 1,
+					project_id:0,
+					applyFilter:true,
+					calendars: [GO.calendar.defaultCalendar['id']]
+				});
+			},
+			scope : this
+		},{
 			text:t("colors", "calendar"),
 			id:'gear',
 			qtip:t("Calendar color", "calendar"),
@@ -216,11 +242,23 @@ GO.calendar.MainPanel = function(config){
 				},this);
 			},
 			scope: this
+		},{
+			text:t("Select all"),
+			id:'plus',
+			qtip:t("Select all"),
+			handler:function(){this.calendarList.selectAll();},
+			scope: this
 		}],
 		bbar: new GO.SmallPagingToolbar({
 			store:this.calendarsStore,
 			pageSize:GO.settings.config.nav_page_size
 		})
+	});
+
+	this.calendarList.getBottomToolbar().add('->');
+	this.calendarList.getBottomToolbar().add({
+		xtype: 'tbsearch',
+		store: this.calendarsStore
 	});
 
 	this.viewsList = new GO.grid.GridPanel({
@@ -754,6 +792,8 @@ GO.calendar.MainPanel = function(config){
 		this.westPanel = new Ext.Panel({
 			region:'west',
 			width: dp(224),
+			boxMinWidth: dp(224),
+			stateId: 'cal-west',
 			cls:'go-sidenav',
 			split:true,
 			layout:'border',
@@ -764,11 +804,12 @@ GO.calendar.MainPanel = function(config){
 				height:dp(241),
 				split:false,
 				baseCls:'x-plain',
+				layout: {
+					type: 'vbox',
+					align: 'center'
+				},
 				items:[
-					new Ext.Panel({
-						cls:'go-date-picker-wrap',
-						items:[this.datePicker]
-					})
+					this.datePicker
 				]
 			}),
 			this.calendarListPanel]
@@ -796,7 +837,15 @@ Ext.extend(GO.calendar.MainPanel, Ext.Panel, {
 	group_id: 1,
 	
 	route : function(id, entity) {
-		GO.calendar.showEventDialog({event_id: id});
+		GO.calendar.showEventDialog({event_id: id}).on("load", function(dlg) {
+			var date = dlg.startDate.getValue();
+
+			GO.mainLayout.getModulePanel('calendar').show();
+			GO.mainLayout.getModulePanel('calendar').setDisplay({
+				date: date
+			});
+
+		}, this, {single: true});
 	},
 	
 	setCalendarInfo: function(title, comment) {
@@ -819,9 +868,9 @@ Ext.extend(GO.calendar.MainPanel, Ext.Panel, {
 			for(var cal_id in store.reader.jsonData.backgrounds){					
 				rowIndex = this.calendarList.store.indexOfId(parseInt(cal_id));		
 				if(rowIndex>-1){
-					var rowEl = Ext.get(view.getRow(rowIndex));		
+					var rowEl = Ext.get(view.getCell(rowIndex, 0));		
 					if(rowEl)
-						rowEl.applyStyles("background-color: #"+store.reader.jsonData.backgrounds[cal_id]);				
+						rowEl.applyStyles("color: #"+store.reader.jsonData.backgrounds[cal_id]);				
 				}
 			}
 		}
@@ -1932,19 +1981,16 @@ Ext.extend(GO.calendar.MainPanel, Ext.Panel, {
 				scope:this
 			},'-']
 
-			if(go.Modules.isAvailable("core", "customfields"))
-			{
-				tbar.push(new Ext.Button({
-					iconCls: 'ic-settings',
-					disabled: !GO.settings.modules.calendar.write_permission,
-					text: t("Custom fields", "customfields"),
-					handler: function()
-					{
-						GO.calendar.groupDialog.show(1);
-					},
-					scope: this
-				}));
-			}
+			tbar.push(new Ext.Button({
+				iconCls: 'ic-settings',
+				disabled: !GO.settings.modules.calendar.write_permission,
+				text: t("Custom fields", "customfields"),
+				handler: function()
+				{
+					GO.calendar.groupDialog.show(1);
+				},
+				scope: this
+			}));
 
 			tbar.push('->');
 			tbar.push(new go.toolbar.SearchButton({
@@ -2142,15 +2188,24 @@ go.Modules.register("legacy", 'calendar', {
 	title : t("Calendar", "calendar"),
 	iconCls : 'go-tab-icon-calendar',
 	entities: [{
-			name: "Event",			
-			linkWindow: function() {
-				var win = new GO.calendar.EventDialog();
-				win.win.closeAction = "close";
-				return win;
-			},
-			linkDetail: function() {
-				return new GO.calendar.EventPanel();
-			}	
+			name: "Event",
+			links: [{
+				linkWindow: function() {
+					return GO.calendar.showEventDialog();
+				},
+				linkDetail: function() {
+					return new GO.calendar.EventPanel();
+				}					
+		}],
+		customFields: {
+			fieldSetDialog: "GO.calendar.CustomFieldSetDialog"
+		}
+	}, {
+		name: "Calendar",
+		customFields: {
+			fieldSetDialog: "GO.calendar.CustomFieldSetDialog"
+		}
+		
 	}],
 	userSettingsPanels: ["GO.calendar.SettingsPanel"]
 	
@@ -2246,6 +2301,8 @@ GO.calendar.showEventDialog = function(config){
 		GO.calendar.eventDialog = new GO.calendar.EventDialog();	
 
 	GO.calendar.eventDialog.show(config);
+
+	return GO.calendar.eventDialog;
 }
 
 

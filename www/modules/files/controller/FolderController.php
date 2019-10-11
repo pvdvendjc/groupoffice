@@ -41,7 +41,7 @@ class FolderController extends \GO\Base\Controller\AbstractModelController {
 
 	protected function actionSyncFilesystem($params){	
 		
-		if(!$this->isCli() && !\GO::modules()->tools)
+		if(!$this->isCli() && !\GO::user()->isAdmin())
 			throw new \GO\Base\Exception\AccessDenied();
 		
 		$oldAllowDeletes = \GO\Base\Fs\File::setAllowDeletes(false);
@@ -324,7 +324,7 @@ class FolderController extends \GO\Base\Controller\AbstractModelController {
 //				$folder->checkFsSync();
 
 				$stmt = $folder->getSubFolders(\GO\Base\Db\FindParams::newInstance()
-							->order('name','ASC'));
+							->order(new \go\core\db\Expression('name COLLATE utf8mb4_unicode_ci ASC')));
 
 				while ($subfolder = $stmt->fetch()) {
 					$response[] = $this->_folderToNode($subfolder, $expandFolderIds, false, $showFiles);
@@ -357,7 +357,7 @@ class FolderController extends \GO\Base\Controller\AbstractModelController {
 			$node['children'] = array();
 			$stmt = $folder->getSubFolders(\GO\Base\Db\FindParams::newInstance()
 							->limit(300)//not so nice hardcoded limit
-							->order('name','ASC'));
+							->order(new \go\core\db\Expression('name COLLATE utf8mb4_unicode_ci ASC')));
 			while ($subfolder = $stmt->fetch()) {
 				$node['children'][] = $this->_folderToNode($subfolder, $expandFolderIds, false, $withFiles);
 			}
@@ -594,9 +594,7 @@ class FolderController extends \GO\Base\Controller\AbstractModelController {
 						if ($params['overwrite'] == 'no')
 							$params['overwrite'] = 'ask';
 
-						continue;
-
-						break;
+						continue 2;
 				}
 			}
 
@@ -655,7 +653,7 @@ class FolderController extends \GO\Base\Controller\AbstractModelController {
 		$findParams = \GO\Base\Db\FindParams::newInstance()
 						->joinRelation('sharedRootFolders')
 						->ignoreAcl()
-						->order('name','ASC');
+						->order(new \go\core\db\Expression('name COLLATE utf8mb4_unicode_ci ASC'));
 		
 		$findParams->getCriteria()
 					->addCondition('user_id', \GO::user()->id,'=','sharedRootFolders');
@@ -741,6 +739,8 @@ class FolderController extends \GO\Base\Controller\AbstractModelController {
 //          }
 //      }
 
+		
+		
 
 		$store = \GO\Base\Data\Store::newInstance(\GO\Files\Model\Folder::model());
 
@@ -756,12 +756,14 @@ class FolderController extends \GO\Base\Controller\AbstractModelController {
 		$store->getColumnModel()->setFormatRecordFunction(array($this, 'formatListRecord'));
 
 		$findParams = $store->getDefaultParams($params);
-
+		
 		//sorting on custom fields doesn't work for folders
 		//TODO
-		if(isset($params['sort']) && substr($params['sort'],0,4)=='col_')
-			$findParams->order ("name", $params['dir']);
+		if(!isset($params['sort']) || substr($params['sort'],0,13)=='customFields.' || $params['sort'] == 'name') {
+			$findParams->order(new \go\core\db\Expression('name COLLATE utf8mb4_unicode_ci ' . (!isset($params['dir']) || $params['dir'] == 'ASC' ? 'ASC' : 'DESC')));
+		}
 
+		
 		$findParamsArray = $findParams->getParams();
 		if(!isset($findParamsArray['start']))
 			$findParamsArray['start']=0;
@@ -809,6 +811,10 @@ class FolderController extends \GO\Base\Controller\AbstractModelController {
 			if(!empty($params['files_filter'])){
 				$extensions= explode(',',$params['files_filter']);
 				$findParams->getCriteria()->addInCondition('extension', $extensions);
+			}
+			
+			if(!isset($params['sort']) || $params['sort'] == 'name') {
+				$findParams->order(new \go\core\db\Expression('name COLLATE utf8mb4_unicode_ci ' . (!isset($params['dir']) || $params['dir'] == 'ASC' ? 'ASC' : 'DESC')));
 			}
 
 			$stmt = $folder->files($findParams);
@@ -874,7 +880,7 @@ class FolderController extends \GO\Base\Controller\AbstractModelController {
 					->addInCondition("groupId", \GO\Base\Model\User::getGroupIds(\GO::user()->id), "a", false);
 
 			$findParams = \GO\Base\Db\FindParams::newInstance()
-					->select('t.*,cf.*')
+					->select('t.*')
 					->ignoreAcl()
 					->joinCustomFields()
 					->joinModel(array(
@@ -897,7 +903,14 @@ class FolderController extends \GO\Base\Controller\AbstractModelController {
 					);
 			
 			if(isset($params['sort'])){
-				$findParams->order("t.".$params['sort'], $params['dir']);
+				
+				if($params['sort'] == 'name') {
+					 $findParams->order(new \go\core\db\Expression('t.name COLLATE utf8mb4_unicode_ci ' . (!isset($params['dir']) || $params['dir'] == 'ASC' ? 'ASC' : 'DESC')));
+				}else
+				{				
+					$params['sort'] = str_replace('customFields', 'cf', $params['sort']);
+					$findParams->order($params['sort'], $params['dir']);
+				}
 			}
 			
 			$filesStmt = \GO\Files\Model\File::model()->find($findParams);
@@ -982,7 +995,7 @@ class FolderController extends \GO\Base\Controller\AbstractModelController {
 
 
 		$currentPath = $folder->path;
-		$newPath = rtrim($model->buildFilesPath(),'.');
+		$newPath = \go\core\util\StringUtil::normalize(rtrim($model->buildFilesPath(),'.'));
 		
 
 		if(!$newPath)
@@ -1089,7 +1102,7 @@ class FolderController extends \GO\Base\Controller\AbstractModelController {
 	private function _createNewModelFolder(\GO\Base\Db\ActiveRecord $model) {
 
 		GO::debug("Create new model folder ".$model->className()."(ID:".$model->id.")");
-		$filesPath = rtrim($model->buildFilesPath(),'.');
+		$filesPath = \go\core\util\StringUtil::normalize(rtrim($model->buildFilesPath(),'.'));
 		$folder = \GO\Files\Model\Folder::model()->findByPath($filesPath,true, array('acl_id'=>$model->findAclId(),'readonly'=>1));
 		
 		if(!$folder){
@@ -1117,33 +1130,10 @@ class FolderController extends \GO\Base\Controller\AbstractModelController {
 		
 		$entity = $cls::findById($params['id']);
 		
-		if(empty($entity->filesFolderId)) {
-			$filesPath = $entityType->getModule()->name. '/'. $entityType->getName() . '/' . $entity->id;
-			$aclId =$entity->findAclId();
-			$folder = \GO\Files\Model\Folder::model()->findByPath($filesPath,true, array('acl_id'=>$aclId,'readonly'=>1));
-
-			if(!$folder){
-				throw new \Exception("Failed to create folder ".$filesPath);
-			}
-	//      if (!empty($model->acl_id))
-	//          $folder->acl_id = $model->acl_id;
-
-			$folder->acl_id=$aclId;
-
-			$folder->visible = 0;
-			$folder->readonly = 1;
-			$folder->systemSave = true;
-			$folder->save(true);
-
-			$entity->filesFolderId = $folder->id;
-			if(!$entity->save()) {
-				throw new \Exception("Could not save entity!");
-			}
-		}
-		
+		$folder = \GO\Files\Model\Folder::model()->findForEntity($entity);
 		return [
 				"success" => true,
-				"files_folder_id" => $entity->filesFolderId
+				"files_folder_id" => $folder->id
 		];
 	}
 
@@ -1262,7 +1252,6 @@ class FolderController extends \GO\Base\Controller\AbstractModelController {
 								array_unshift(\GO::session()->values['files']['uploadqueue'], $tmpfile);
 								$response['fileExists'] = $file->name();
 								return $response;
-								break;
 
 							case 'yestoall':
 							case 'yes':
@@ -1277,9 +1266,7 @@ class FolderController extends \GO\Base\Controller\AbstractModelController {
 								if ($params['overwrite'] == 'no')
 									$params['overwrite'] = 'ask';
 
-								continue;
-
-								break;
+								continue 2;
 						}
 					} else {
 						$destinationFolder->addFileSystemFile($file);
@@ -1296,6 +1283,9 @@ class FolderController extends \GO\Base\Controller\AbstractModelController {
 
 		ini_set('max_execution_time', 600);
 		ini_set('memory_limit', '512M');
+		//So other actions can run simultanuously
+		GO::session()->closeWriting();
+		
 		$sources = json_decode($params['compress_sources'], true);
 
 
@@ -1336,6 +1326,7 @@ class FolderController extends \GO\Base\Controller\AbstractModelController {
 		
 		ini_set('max_execution_time', 600);
 		ini_set('memory_limit', '512M');
+		GO::session()->closeWriting();
 		
 		$sources = json_decode($params['sources'], true);
 		
@@ -1395,6 +1386,11 @@ class FolderController extends \GO\Base\Controller\AbstractModelController {
 
 
 	protected function actionDecompress($params){
+		
+		//So other actions can run simultanuously
+		GO::session()->closeWriting();
+		
+		
 		if (!\GO\Base\Util\Common::isWindows())
 			putenv('LANG=en_US.UTF-8');
 
@@ -1402,6 +1398,10 @@ class FolderController extends \GO\Base\Controller\AbstractModelController {
 
 
 		$workingFolder = \GO\Files\Model\Folder::model()->findByPk($params['working_folder_id']);
+		
+		if(!$workingFolder->checkPermissionLevel(\GO\Base\Model\Acl::WRITE_PERMISSION)){
+			throw new \GO\Base\Exception\AccessDenied("No permission to write in the target folder.");
+		}
 
 		$workingPath = \GO::config()->file_storage_path.$workingFolder->path;
 		chdir($workingPath);
@@ -1558,5 +1558,28 @@ class FolderController extends \GO\Base\Controller\AbstractModelController {
 		}
 
 		return $response;
+	}
+	
+	
+	/**
+	 * Delete a single not. Must be a POST request
+	 *
+	 * @param int $id
+	 * @throws Exception
+	 * @throws \GO\Base\Exception\NotFound
+	 */
+	protected function actionDelete($id) {
+
+		if (!GO::request()->isPost() && !GO::environment()->isCli()) {
+			throw new Exception('Delete must be a POST request');
+		}
+
+		$model = \GO\Files\Model\Folder::model()->findByPk($id);
+		if (!$model)
+			throw new \GO\Base\Exception\NotFound();
+
+		$model->delete();
+
+		echo $this->render('delete', array('model' => $model));
 	}
 }

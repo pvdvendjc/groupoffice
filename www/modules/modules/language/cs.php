@@ -19,4 +19,6 @@ return array (
   'name' => 'Moduly',
   'description' => 'Slouží k úpravě modulů.',
   'Modules' => 'Moduly',
+  'Ok' => 'OK',
+  'All data will be lost! Are you sure you want to delete module \'{item}\'?' => 'Všechny data budou ztracena! Jste si jistý, že chcete vymazat modul?',
 );

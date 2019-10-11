@@ -149,6 +149,9 @@ $app-icons: (
 .ml-unseen-from {
 	font-weight: bold;
 }
+.ml-unseen-subject {
+	font-weight: normal;
+}
 
 .ml-seen-subject, .ml-unseen-subject {
 	@extend %font-body2;
@@ -184,12 +187,41 @@ $app-icons: (
 	}
 }
 
+.x-grid3-col-icon {
+		i {
+			&.em-flag {
+				color: color($red, 700);
+			}
+	}
+}
+
+.message-body {
+	padding: dp(8) dp(16);
+
+	position: relative;	
+	
+	p.MsoListParagraph, li.MsoListParagraph, div.MsoListParagraph
+	{
+		margin-top:0cm;
+		margin-right:0cm;
+		margin-bottom:0cm;
+		margin-left:36.0pt;
+		margin-bottom:.0001pt;
+		font-size:11.0pt;
+	}
+}
+
+.message-header-table{
+	float:left;
+	margin-right: dp(72);
+	margin-bottom: dp(8);
+}
 
 .message-header {
 	position: relative;
 	background-color: color($bg, "background");
 	border-bottom:1px solid color($fg, "line");
-	padding: dp(16);
+	padding: dp(8) dp(16);
 		
 	b {
 		@extend %font-caption;
@@ -208,14 +240,6 @@ $app-icons: (
 	}
 }
 
-
-
-
-//TASK filter
-.x-form-radio-group.x-column-layout-ct {
-	margin-top:dp(16);
-}
-
 .mo-description {
 	padding-left: dp(40);
 }
@@ -230,4 +254,88 @@ $app-icons: (
 		content: "link";
 	}
 	float:right;
+}
+
+/* hide selection */
+.cal-date-picker .x-date-inner .x-date-selected {
+
+	> a {
+	background-color: transparent;
+	color: color($fg, 'text');
+	font-weight: normal;
+	}
+	span {
+		font-weight: normal;
+	}
+
+	&.x-date-today {
+		> a {
+			@include var(color, c-primary);
+		}
+	}
+}
+
+
+.go-attachments {
+	span {
+		cursor: pointer;
+
+		&.x-view-selected {
+			background-color: color($bg, 'selected');
+		}
+		&.x-view-over {
+			background-color: color($bg, 'hover');
+		}
+
+		i {
+			cursor: pointer;
+			display: none;
+		}
+		&.x-view-selected, &.x-view-over {
+			i {
+				display: inline-block;
+			}
+		}
+	}
+}
+
+//Bookmarks
+.chooseIcon {
+	margin-top:10px;
+	margin-left:50%;
+	position:relative;
+	display:inline-block;
+	padding:0;
+	background: url('img/default-avatar.svg') no-repeat center center;
+	background-size:cover;	
+	border-radius: 50%;
+	width:dp(40);
+	height: dp(40);
+	font-size: dp(28);	
+	text-align: center;	
+	
+	.icon {
+		color: red;
+		line-height: dp(40);
+		font-size: inherit;			
+		height: 100%;
+		width: 100%;
+	}
+
+	.go-detail-view & {
+		//float:left; ?? why?
+		margin-top:dp(4);
+		margin-right: dp(16);
+	}
+	
+	.x-btn {
+		border: 0;
+	}
+	
+	&.group {
+		&::before {
+			content: "group";			
+		}
+		background: linear-gradient(rgba(0, 0, 0, 0.38), rgba(0, 0, 0, 0.24));	
+	}
 }

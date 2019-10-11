@@ -1,7 +1,11 @@
 <?php
 namespace go\core\util;
 
-class ArrayObject extends \ArrayObject {
+use JsonSerializable;
+
+class ArrayObject extends \ArrayObject implements JsonSerializable {
+
+	public $serializeJsonAsObject = false;
 	
 	/**
 	 * Find the key in an array by a callable function.
@@ -40,6 +44,19 @@ class ArrayObject extends \ArrayObject {
 	}
 	
 	/**
+	 * Similar to getArrayCopy() but it is recursive when there are children that
+	 * are also an ArrayObject
+	 * 
+	 * @return array
+	 */
+	public function getArray() {
+		return array_map( function($item){
+        return $item instanceof self ? $item->getArray() : $item;
+    }, $this->getArrayCopy() );
+	}
+	
+	
+	/**
 	 * Merge array recursively. 
 	 * 
 	 * array_merge_recursive from php does not handle string elements right. 
@@ -48,14 +65,53 @@ class ArrayObject extends \ArrayObject {
 	 * @param array $arr
 	 * @return self
 	 */
-	public function mergeRecurive(array $arr) {
+	public function mergeRecursive(array $arr) {
 		foreach ($arr as $key => $value) {
-			if (is_array($value) && isset($this[$key])) {
-				$this[$key] = self::mergeRecurive($this[$key], $value);
+			if (is_array($value) && isset($this[$key])) {				
+				$this[$key] = new self($this[$key]);
+				$this[$key]->mergeRecursive($value);
 			} else {
 				$this[$key] = $value;
 			}
 		}
+
+		return $this;
+	}
+	
+	/**
+	 * Compare this array with a given array and return all values that are not present or different in the given array.
+	 * 
+	 * @param array $arr
+	 * @return array
+	 */
+	public function diff(array $arr) {
+		$diff = [];
+		foreach ($this as $key => $value) {
+			if (!array_key_exists($key, $arr) || !$this->equals($arr[$key],  $value)) {
+				$diff[$key] = $value;
+			}
+		}
+		
+		return $diff;
+	}
+	
+	private function equals($a, $b) {
+		if(is_array($a) && is_array($b)) {
+			$aObj = new static($a);
+			$bObj = new static($b);
+			return empty($aObj->diff($b)) && empty($bObj->diff($a));
+		} else
+		{
+			return $a === $b;
+		}
+	}
+
+	public function jsonSerialize()
+	{
+		if($this->serializeJsonAsObject && empty($this)) 
+		{
+			return new \stdClass;	
+		} 
 
 		return $this;
 	}

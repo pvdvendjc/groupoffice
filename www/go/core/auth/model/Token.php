@@ -147,7 +147,7 @@ class Token extends Entity {
 	}
 	
 	private static function generateToken(){
-		return uniqid().bin2hex(openssl_random_pseudo_bytes(16));
+		return uniqid().bin2hex(random_bytes(16));
 	}
 
 	/**
@@ -202,11 +202,16 @@ class Token extends Entity {
 	/**
 	 * Get the user this token belongs to
 	 * 
+	 * @param array $properties the properties to fetch
 	 * @return User
 	 */
-	public function getUser() {
+	public function getUser(array $properties = []) {
+		if(!empty($properties)) {
+			return $this->user ?? \go\core\model\User::findById($this->userId, $properties);
+		}
+
 		if(!$this->user) {
-			$this->user = \go\modules\core\users\model\User::findById($this->userId);
+			$this->user = \go\core\model\User::findById($this->userId);
 		}
 		return $this->user;
 	}
@@ -214,13 +219,14 @@ class Token extends Entity {
 	/**
 	 * Authenticate this token
 	 * 
-	 * @return boolean success
+	 * @return bool success
 	 */
 	public function setAuthenticated(){
 		
 		$user = $this->getUser();
 		$user->lastLogin = new DateTime();
 		$user->loginCount++;
+		$user->language = GO()->getLanguage()->getIsoCode();
 		if(!$user->save()) {
 			return false;
 		}
@@ -253,12 +259,11 @@ class Token extends Entity {
 	 */
 	private function oldLogin(){
 		
-		if(\go\core\Environment::get()->isCli()){
+		if(\go\core\Environment::get()->isCli() || basename($_SERVER['PHP_SELF']) == 'index.php') {
 			return;
-		}
+		}		
 		
-    if (session_status() == PHP_SESSION_NONE) {
-			
+    if (session_status() == PHP_SESSION_NONE && !headers_sent()) {
       //without cookie_httponly the cookie can be accessed by malicious scripts 
       //injected to the site and its value can be stolen. Any information stored in 
       //session tokens may be stolen and used later for identity theft or
@@ -271,18 +276,17 @@ class Token extends Entity {
       if(\go\core\http\Request::get()->isHttps()) {
         ini_set('session.cookie_secure',1);
       }
-
-      session_name('groupoffice');
+    
+			session_name('groupoffice');
       session_start();
     }
 		
 		if(!isset($_SESSION['GO_SESSION'])) {
-				$_SESSION['GO_SESSION'] = [];
-			}			
+			$_SESSION['GO_SESSION'] = [];
+		}			
+
 		$_SESSION['GO_SESSION']['user_id'] = $this->userId;
-		$_SESSION['GO_SESSION']['accessToken'] = $this->accessToken;			
-		
-		
+		$_SESSION['GO_SESSION']['accessToken'] = $this->accessToken;
 	}
 	
 	private function oldLogout() {

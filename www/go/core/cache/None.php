@@ -15,6 +15,10 @@ use go\core\cache\CacheInterface;
 class None implements CacheInterface {
 
 	private $cache = [];
+	
+	public function __construct() {
+		GO()->warn("Not using cache. This will be slow!");
+	}
 
 	/**
 	 * Store any value in the cache
@@ -61,7 +65,7 @@ class None implements CacheInterface {
 		return true;
 	}
 
-	public function isSupported() {
+	public static function isSupported() {
 		return true;
 	}
 

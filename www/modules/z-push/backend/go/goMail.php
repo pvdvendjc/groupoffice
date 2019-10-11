@@ -734,6 +734,9 @@ class goMail extends GoBaseBackendDiff {
 				{
 					ZLog::Write(LOGLEVEL_DEBUG, 'Client sent cutoff date for calendar: ' . \GO\Base\Util\Date::get_timestamp($cutoffdate));
 					$uids = $imap->search('SINCE ' . date("j-M-Y", $cutoffdate));
+					if(empty($uids)) {
+						return [];
+					}
 					$headers = $imap->get_flags(min($uids).':*');
 				}
 				
@@ -806,7 +809,7 @@ class goMail extends GoBaseBackendDiff {
 		$box = array(
 						'id'=>'INBOX',
 						'type'=>SYNC_FOLDER_TYPE_INBOX,
-						'displayname'=>GO::t("Inbox", "email"),
+						'displayname'=> 'INBOX',
 						"parentid"=>"0",
 						"mod"=>'INBOX'
 				);
@@ -853,8 +856,8 @@ class goMail extends GoBaseBackendDiff {
 
 				// always use "." as folder delimiter
 				$box["id"] = str_replace($mailbox->delimiter, ".", $box["id"]);
-				$box["mod"] = $mailbox->getBaseName();
-				$box["displayname"] = $mailbox->getDisplayName();
+				$box["displayname"] = $box["mod"] = $mailbox->getBaseName();
+				//$box["displayname"] = $mailbox->getDisplayName();
 				$box["parentid"] = str_replace($mailbox->delimiter, ".", $mailbox->getParentName());
 				if (!$box['parentid'])
 					$box['parentid'] = "0";

@@ -24,8 +24,38 @@ class StringUtil {
 	 * @param string
 	 */
 	public static function normalizeCrlf($text, $crlf = "\r\n") {
-		$text = str_replace("\r", "", $text);
-		return $crlf != "\n" ? str_replace("\n", $crlf, $text) : $text;
+		if(empty($text)) {
+			return $text;
+		}
+
+		return preg_replace("/\R/", $crlf, $text);
+		
+		//This caused problems with invalid UTF8.
+		// $normalized =  preg_replace('/\R/u', $crlf, $text);
+		// if(empty($normalized)) {
+		// 	throw new \Exception(array_flip(get_defined_constants(true)['pcre'])[preg_last_error()]. ': while normalizing crlf for: '. $text);
+		// }
+		// return $normalized;
+	}
+	
+	
+	public static function normalize($text) {
+		if(empty($text)) {
+			return $text;
+		}
+
+		$normalized = \Normalizer::normalize($text, \Normalizer::FORM_C);
+		if($normalized === false) {
+
+			//try to clean the string
+			$normalized = static::cleanUtf8($text);
+		}
+
+		return $normalized;
+	}
+	
+	public static function isNormalized($text) {
+		return \Normalizer::isNormalized($text, \Normalizer::FORM_C);
 	}
 	
 	  /**
@@ -574,5 +604,26 @@ END;
 	 */
 	public static function explodeSearchExpression($expression) {
 		return preg_split("/[\s,]*\\\"([^\\\"]+)\\\"[\s,]*|" . "[\s,]*'([^']+)'[\s,]*|" . "[\s,]+/", $expression, 0, PREG_SPLIT_NO_EMPTY | PREG_SPLIT_DELIM_CAPTURE);
+	}
+	
+	
+	public static function debugUTF8($str) {		
+		$ord = "";
+		for ( $pos=0, $l = strlen($str); $pos < $l; $pos ++ ) {
+		 $byte = substr($str, $pos);
+		 $ord .= " U+" . ord($byte);
+		}
+		
+		return $ord;
+	}
+
+	/**
+	 * Generate random string
+	 * 
+	 * @param int $length
+	 * @return string
+	 */
+	public static function random($length) {
+		return bin2hex(random_bytes($length));
 	}
 }

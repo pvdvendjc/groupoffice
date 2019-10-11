@@ -10,5 +10,7 @@ if(isset($_GET['lang'])) {
 }
 
 header('Content-Type: application/javascript; charset=utf8');
-$webclient = new Extjs3();
-readfile($webclient->getLanguageJS()->getPath());
+$webclient = Extjs3::get();
+$webclient->getLanguageJS()->output(true, true, [
+	"Expires" => (new DateTime("1 year"))->format("D, j M Y H:i:s")
+]);

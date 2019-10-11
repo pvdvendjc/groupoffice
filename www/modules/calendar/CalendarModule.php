@@ -4,7 +4,7 @@
 namespace GO\Calendar;
 
 use GO\Calendar\Model\UserSettings;
-use go\modules\core\users\model\User;
+use go\core\model\User;
 use go\core\orm\Mapping;
 use go\core\orm\Property;
 
@@ -16,7 +16,7 @@ class CalendarModule extends \GO\Base\Module{
 	}
 	
 	public static function onMap(Mapping $mapping) {
-		$mapping->addRelation('calendarSettings', UserSettings::class, ['id' => 'user_id'], false);
+		$mapping->addHasOne('calendarSettings', UserSettings::class, ['id' => 'user_id']);
 		return true;
 	}
 	

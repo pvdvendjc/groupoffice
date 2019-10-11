@@ -136,7 +136,7 @@ class GO{
 	public static function setMemoryLimit($mb){
 		$max = \GO\Base\Util\Number::configSizeToMB(ini_get("memory_limit"));
 
-		if($mb>$max){
+		if($max > 0 && $mb>$max){
 			return ini_set("memory_limit", $mb.'M');
 		}else
 		{
@@ -276,9 +276,6 @@ class GO{
 		if($dbport===false)
 			$dbport=\GO::config()->db_port;
 		
-
-		\GO::debug("Connect: mysql:host=$dbhost;dbname=$dbname, $dbuser, ***",$options);
-
 		
 		self::$db = GO()->getDbConnection()->getPDO();//new \GO\Base\Db\PDO("mysql:host=$dbhost;dbname=$dbname;port=$dbport", $dbuser, $dbpass, $options);
 	}
@@ -293,7 +290,7 @@ class GO{
 	 */
 	public static function clearCache(){
 		
-		\GO::config()->getCacheFolder(false)->delete();		
+		\GO::config()->getCacheFolder(false)->clearContents();	
 		
 		\GO::cache()->flush();
 
@@ -435,13 +432,12 @@ class GO{
 	public static function cache(){
 
         if (!isset(self::$_cache)) {
-            if(GO::config()->debug || !GO::isInstalled()){
+            if(!GO::isInstalled()){
               self::$_cache=new \GO\Base\Cache\None();
 						}else{
 							if(!isset(GO::session()->values['cacheDriver'])){
 								$cachePref = array(
-//										"\\GO\\Base\\Cache\\XCache",
-//										"\\GO\\Base\\Cache\\Apc",
+										"\\GO\\Base\\Cache\\Apcu",
 										"\\GO\\Base\\Cache\\Disk"
 								);
 								foreach($cachePref as $cacheDriver){
@@ -457,6 +453,7 @@ class GO{
 							}else
 							{
 								$cacheDriver = GO::session()->values['cacheDriver'];
+								GO::debug("Using $cacheDriver cache");
 								self::$_cache = new $cacheDriver;
 							}
 						}
@@ -934,7 +931,7 @@ class GO{
 	 */
 	public static function debug($text, $config=false) {
 		
-		return GO()->debug($text, 'general', 1);
+		return GO()->debug($text, 1);
 
 		if (   self::config()->debug
 			|| self::config()->debug_log
@@ -1146,7 +1143,7 @@ class GO{
 	 * @return string
 	 */
 	public static function url($path='', $params=array(), $relative=true, $htmlspecialchars=false, $appendSecurityToken=true){
-		$url = $relative ? \GO::config()->host : \GO::config()->full_url;
+		$url = $relative ? "" : \GO::config()->full_url;
 
 		if(empty($path) && empty($params)){
 			return $url;

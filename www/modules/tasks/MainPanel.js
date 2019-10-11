@@ -131,7 +131,7 @@ this.gridPanel.store.on('load', function(store, records, options)
 			region:'west',
 			autoScroll:false,
 			closeOnTab: true,
-			width: dp(224),
+			width: 200,
 			resizable:true,
 			cls: 'go-sidenav',
 			layout:'border',
@@ -169,14 +169,14 @@ this.gridPanel.store.on('load', function(store, records, options)
 						},
 						scope: this
 					},{
-						iconCls: 'btn-settings',
+						iconCls: 'ic-settings',
 						tooltip: t("Administration"),
 						handler: function(){
 							this.showAdminDialog();
 						},
 						scope: this
 					},{
-						iconCls: 'btn-refresh',
+						iconCls: 'ic-refresh',
 						tooltip: t("Refresh"),
 						handler: function(){
 							this.taskListsStore.load();
@@ -526,15 +526,18 @@ go.Modules.register("legacy", 'tasks', {
 	title: t("Tasks", "tasks"),
 	iconCls: 'go-tab-icon-tasks',
 	entities: [{
-			name: "Task",			
-			linkWindow: function() {
-				var win = new GO.tasks.TaskDialog();
-				win.win.closeAction = "close";
-				return win;
-			},
-			linkDetail: function() {
-				return new GO.tasks.TaskPanel();
-			}	
+			name: 'Task',
+			links: [{
+					linkWindow: function() {
+						var win = new GO.tasks.TaskDialog();
+						win.win.closeAction = "close";
+						return win;
+					},
+					linkDetail: function() {
+						return new GO.tasks.TaskPanel();
+					}	
+			}]
 	}],
+	
 	userSettingsPanels: ["GO.tasks.SettingsPanel"]
 });

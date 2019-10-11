@@ -16,6 +16,11 @@ GO.sync.SettingsPanel = Ext.extend(Ext.Panel,{
 	title : t("Synchronization", "sync"),
 	iconCls: 'ic-sync',
 	defaultType: 'textfield',
+	layout: "form",
+	defaults: {
+		anchor: "100%"
+	},
+
 
 	onLoadStart: function (userId) {
 		
@@ -42,7 +47,7 @@ GO.sync.SettingsPanel = Ext.extend(Ext.Panel,{
 			]})
 		];
 
-		var syncComponents = {calendar: 'Calendar',addressbook: 'Addressbook',tasks: 'Tasklist'};
+		var syncComponents = {calendar: 'Calendar',tasks: 'Tasklist'};
 		
 		for(var i in syncComponents) {
 			var module = i,
@@ -95,7 +100,7 @@ GO.sync.SettingsPanel = Ext.extend(Ext.Panel,{
 		}
 
 
-		if(go.Modules.isAvailable("legacy", module))
+		if(go.Modules.isAvailable("community", "notes"))
 		{
 			var defaultCol = new GO.grid.RadioColumn({
 					header: t("Default", "sync"),
@@ -103,16 +108,42 @@ GO.sync.SettingsPanel = Ext.extend(Ext.Panel,{
 					width: dp(104)
 				});
 				
-			this.items.push(this.noteBookSelect = new go.form.multiselect.Field({
+			this.noteBookSelect = new go.form.multiselect.Field({
 				name: "syncNoteBooks",
 				idField: "noteBookId",
 				displayField: "name",
 				entityStore: "NoteBook",
-				title: t("Notebooks", "notes"),
+				hideLabel: true,
+				title: t("Notebooks", "community", "notes"),
 				extraColumns: [defaultCol],
 				extraFields: [{name: "isDefault", type: "boolean"}],
 				plugins: [defaultCol]
-			}));
+			});
+			
+			this.items.push(this.noteBookSelect);
+		}
+		
+		if(go.Modules.isAvailable("community", "addressbook"))
+		{
+			var defaultCol = new GO.grid.RadioColumn({
+					header: t("Default", "sync"),
+					dataIndex: 'isDefault',
+					width: dp(104)
+				});
+				
+			this.addressBookSelect = new go.form.multiselect.Field({
+				name: "syncAddressBooks",
+				idField: "addressBookId",
+				displayField: "name",
+				entityStore: "AddressBook",
+				hideLabel: true,
+				title: t("Address books", "community", "addressbook"),
+				extraColumns: [defaultCol],
+				extraFields: [{name: "isDefault", type: "boolean"}],
+				plugins: [defaultCol]
+			});
+			
+			this.items.push(this.addressBookSelect);
 		}
 	
 		this.on('show',function(){

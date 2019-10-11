@@ -71,7 +71,7 @@ html,body,div,dl,dt,dd,ul,ol,li,h1,h2,h3,h4,h5,h6,pre,form,fieldset,input,p,bloc
     -moz-user-select: -moz-none;
     -webkit-user-select: none;
     
-    cursor:default;
+    cursor:inherit;
 }
 
 .x-repaint {
@@ -85,6 +85,7 @@ html,body,div,dl,dt,dd,ul,ol,li,h1,h2,h3,h4,h5,h6,pre,form,fieldset,input,p,bloc
     opacity: .6;
     -moz-opacity: .6;
     filter: alpha(opacity=60);
+		pointer-events: none;
 }
 
 .x-item-disabled * {
@@ -485,7 +486,7 @@ ul.x-tab-strip li.x-tab-edge {
 	}
 }
 
-.ext-webkit *:focus{
+*:focus{
     outline: none !important;
 }
 
@@ -584,7 +585,6 @@ textarea {
     display:block;
     float:left;
     width:100px;
-    padding:3px;
     padding-left:0;
     clear:left;
     z-index:2;
@@ -625,27 +625,15 @@ textarea {
 
 /* Editor small font for grid, toolbar and tree */
 .x-small-editor .x-form-text {
-   height:20px; //todo
-   line-height:16px;
    vertical-align:middle;
 }
-
-.ext-border-box .x-small-editor .x-form-text {
-    height:20px;
-}
-
 .x-small-editor .x-form-select-one {
-   height:20px; // todo
    line-height:16px;
    vertical-align:middle;
 }
 
 .x-small-editor .x-form-num-field {
     text-align:right;
-}
-
-.x-small-editor .x-form-field-wrap .x-form-trigger{
-    height:19px; //todo
 }
 
 
@@ -757,12 +745,17 @@ fieldset.x-panel-collapsed .x-fieldset-bwrap {
     margin-left:-3px;
 }
 
-.x-hide-label .x-form-element {
+//MS: Added > for nested form fields in formgroup
+.x-hide-label > label.x-form-item-label {
+     display:none;
+}
+
+.x-hide-label > .x-form-element {
     padding-left: 0 !important;
 }
 
-.x-hide-label label.x-form-item-label,
-.x-form-label-top .x-hide-label label.x-form-item-label{
+.x-hide-label > label.x-form-item-label,
+.x-form-label-top .x-hide-label > label.x-form-item-label{
     display: none;
 }
 
@@ -1010,22 +1003,11 @@ div.x-toolbar-no-items {
    vertical-align:middle;
 }
 
-.x-grid3-hd-row .x-grid3-marker-hd,
-.x-grid3-row .x-grid3-marker {
-   padding:3px; // todo
-}
 
 .x-grid3-cell-inner, .x-grid3-hd-inner{
 	overflow:hidden;
 	text-overflow: ellipsis;
-   padding:3px 3px 3px 5px;
    white-space: nowrap;
-}
-
-/* ActionColumn, reduce padding to accommodate 16x16 icons in normal row height */
-.x-action-col-cell .x-grid3-cell-inner {
-   padding-top: 1px;
-   padding-bottom: 1px;
 }
 
 .x-action-col-icon {
@@ -1060,8 +1042,8 @@ div.x-toolbar-no-items {
 }
 
 .x-grid3-resize-proxy {
-	width:1px;
-   left:0;
+	width:3px;
+    left:0;
 	cursor: e-resize;
 	cursor: col-resize;
 	position:absolute;
@@ -1121,7 +1103,6 @@ div.x-toolbar-no-items {
 }
 
 .x-grid3-header-offset {
-    padding-left:1px;
     text-align: left;
 }
 
@@ -1160,8 +1141,6 @@ div.x-toolbar-no-items {
 /* Column Reorder DD */
 .x-dd-drag-proxy .x-grid3-hd-inner{
 	width:120px;
-	padding:3px;
-	border:1px solid;
 	overflow:hidden;
 }
 
@@ -1435,8 +1414,8 @@ div.x-toolbar-no-items {
 }
 
 .x-dd-drop-icon{
-   position:absolute;
-	top:3px;
+  position:absolute;
+	top:0;
 	left:3px;
 	display:block;
 	background-color:transparent;
@@ -1444,11 +1423,11 @@ div.x-toolbar-no-items {
 }
 
 .x-view-selector {
-    position:absolute;
-    left:0;
-    top:0;
-    width:0;
-    border:1px dotted;
+   position:absolute;
+   left:0;
+   top:0;
+   width:0;
+   border:1px dotted;
 	opacity: .5;
     
 }.ext-strict .ext-ie .x-tree .x-panel-bwrap{
@@ -1456,7 +1435,16 @@ div.x-toolbar-no-items {
     overflow:hidden;
 }
 
-.x-tree-icon, .x-tree-node-cb, .x-tree-ec-icon, .x-tree-elbow-line, .x-tree-elbow, .x-tree-elbow-end, .x-tree-elbow-plus, .x-tree-elbow-minus, .x-tree-elbow-end-plus, .x-tree-elbow-end-minus{
+.x-tree-icon, 
+.x-tree-node-cb, 
+.x-tree-ec-icon, 
+.x-tree-elbow-line, 
+.x-tree-elbow, 
+.x-tree-elbow-end, 
+.x-tree-elbow-plus, 
+.x-tree-elbow-minus, 
+.x-tree-elbow-end-plus, 
+.x-tree-elbow-end-minus {
 	border: 0 none;
 	height: dp(24);
 	margin: 0;

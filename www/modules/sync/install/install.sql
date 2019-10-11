@@ -1,17 +1,5 @@
 
 
---
--- Tabelstructuur voor tabel `sync_addressbook_user`
---
-
-DROP TABLE IF EXISTS `sync_addressbook_user`;
-CREATE TABLE IF NOT EXISTS `sync_addressbook_user` (
-  `addressbook_id` int(11) NOT NULL AUTO_INCREMENT,
-  `user_id` int(11) NOT NULL DEFAULT '0',
-  `default_addressbook` tinyint(1) NOT NULL DEFAULT '0',
-  PRIMARY KEY (`addressbook_id`,`user_id`),
-  KEY `user_id` (`user_id`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 
 -- --------------------------------------------------------
 
@@ -37,7 +25,7 @@ CREATE TABLE IF NOT EXISTS `sync_devices` (
   `UTC` enum('0','1') NOT NULL,
   `vcalendar_version` varchar(4) NOT NULL,
   PRIMARY KEY (`id`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+) ENGINE=InnoDB;
 
 -- --------------------------------------------------------
 
@@ -56,7 +44,7 @@ CREATE TABLE IF NOT EXISTS `sync_note_categories_user` (
   `default_category` tinyint(1) NOT NULL DEFAULT'0',
   PRIMARY KEY (`category_id`,`user_id`),
   KEY `user_id` (`user_id`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+) ENGINE=InnoDB;
 
 -- --------------------------------------------------------
 
@@ -76,7 +64,7 @@ CREATE TABLE IF NOT EXISTS `sync_settings` (
   `max_days_old` tinyint(4) NOT NULL DEFAULT '0',
   `delete_old_events` tinyint(1) NOT NULL DEFAULT '1',
   PRIMARY KEY (`user_id`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+) ENGINE=InnoDB;
 
 -- --------------------------------------------------------
 
@@ -91,7 +79,7 @@ CREATE TABLE IF NOT EXISTS `sync_tasklist_user` (
   `default_tasklist` tinyint(1) NOT NULL DEFAULT '0',
   PRIMARY KEY (`tasklist_id`,`user_id`),
   KEY `user_id` (`user_id`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+) ENGINE=InnoDB;
 
 -- --------------------------------------------------------
 
@@ -106,7 +94,7 @@ CREATE TABLE IF NOT EXISTS `sync_calendar_user` (
   `default_calendar` tinyint(1) NOT NULL DEFAULT '0',
   PRIMARY KEY (`calendar_id`,`user_id`),
   KEY `user_id` (`user_id`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+) ENGINE=InnoDB;
 
 -- --------------------------------------------------------
 
@@ -126,7 +114,7 @@ CREATE TABLE `sync_user_note_book` (
   `noteBookId` int(11) NOT NULL,
   `userId` int(11) NOT NULL,
   `isDefault` tinyint(1) NOT NULL DEFAULT '0'
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+) ENGINE=InnoDB;
 
 --
 -- Gegevens worden geëxporteerd voor tabel `sync_user_note_book`
@@ -154,3 +142,21 @@ ALTER TABLE `sync_user_note_book`
   ADD CONSTRAINT `sync_user_note_book_user` FOREIGN KEY (`userId`) REFERENCES `core_user` (`id`) ON DELETE CASCADE;
 
 
+
+
+CREATE TABLE `sync_addressbook_user` (
+  `addressBookId` int(11) NOT NULL,
+  `userId` int(11) NOT NULL,
+  `isDefault` tinyint(1) NOT NULL DEFAULT 0
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+
+
+ALTER TABLE `sync_addressbook_user`
+  ADD PRIMARY KEY (`addressbookId`,`userId`),
+  ADD KEY `userId` (`userId`);
+
+
+
+ALTER TABLE `sync_addressbook_user`
+  ADD CONSTRAINT `sync_addressbook_user_ibfk_1` FOREIGN KEY (`addressBookId`) REFERENCES `addressbook_addressbook` (`id`) ON DELETE CASCADE,
+  ADD CONSTRAINT `sync_addressbook_user_ibfk_2` FOREIGN KEY (`userId`) REFERENCES `core_user` (`id`) ON DELETE CASCADE;

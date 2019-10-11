@@ -20,6 +20,8 @@
  * @param {Object} config Configuration options
  */
 GO.form.ComboBoxMulti = function(config){
+	
+	config = config || {};
    
     // this option will interfere will expected operation
     config.typeAhead = false;
@@ -37,13 +39,14 @@ GO.form.ComboBoxMulti = function(config){
 		
 		
 		
-		this.on('render', function() {			
-			//this.syncHeight();
-			this.getEl().on('input', function(e) {								
-				this.syncHeight();
-      }, this);
-			
-		}, this);
+    this.on('render', function() {			
+        //this.syncHeight();
+        this.getEl().on('input', function(e) {								
+            this.syncHeight();
+        }, this);
+
+        
+    }, this);
    
 //    this.on('focus', function(){this.focused=true;}, this);
 //    this.on('blur', function(){this.focused=false;}, this);
@@ -58,26 +61,40 @@ Ext.extend(GO.form.ComboBoxMulti, GO.form.ComboBox, {
 		//private
 		focused : false,
 		
-		maxHeight: 100,
+		//maxHeight: 100,
 		
+		getParams : function(q) {
+			//override to add q filter for JMAP API
+			this.store.baseParams.filter = this.store.baseParams.filter || {};		
+			this.store.baseParams.filter.text = q;
+
+			var p = GO.form.ComboBoxMulti.superclass.getParams.call(this, q);
+			//delete p[this.queryParam];
+
+			return p;
+        },
+        
+        growMin : dp(32),
+        growMax: dp(120),
 		
 		syncHeight : function() {
 			
 			this.el.dom.style.overflowY = 'auto';
 			var changed = false;
-			if(this.el.dom.offsetHeight > dp(32)){
-				this.el.dom.style.height = dp(32) + "px";
+			if(this.el.dom.offsetHeight > this.growMin){
+				this.el.dom.style.height = this.growMin + "px";
 				changed = true;
 			}
 
-			var height = Math.min(this.el.dom.scrollHeight, this.maxHeight);
-			if(height > dp(32)) {
-				this.el.dom.style.height = height + "px";
+			var height = Math.min(this.el.dom.scrollHeight, this.growMax);
+			if(height > this.growMin) {
+				this.el.dom.style.height = (height + dp(8)) + "px";
 				changed = true;
-			}
-			
+            }
+            	
 			if(changed) {
-				this.fireEvent('grow', this);
+                //this.fireEvent('grow', this);
+                this.fireEvent("autosize", this, height);
 			}
 		},
 		
@@ -162,6 +179,11 @@ Ext.extend(GO.form.ComboBoxMulti, GO.form.ComboBox, {
         var p = r.left + value.length + 2 + pad.length;
         this.selectText.defer(200, this, [p, p]);
     },
+		
+		setValue : function(v) {
+			GO.form.ComboBoxMulti.superclass.setValue.call(this, v);
+			this.syncHeight();
+		},
     
     onSelect: function(record, index){
         if (this.fireEvent('beforeselect', this, record, index) !== false) {

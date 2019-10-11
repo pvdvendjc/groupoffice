@@ -43,7 +43,7 @@ class StringHelper {
 	 * @return string
 	 */
 	public static function normalizeCrlf($text, $crlf="\r\n"){		
-		return preg_replace('/\R/u', $crlf, $text);
+		return \go\core\util\StringUtil::normalizeCrlf($text, $crlf);
 	}
 	
 	/**
@@ -1027,10 +1027,10 @@ END;
 	
 		//remove high z-indexes
 		$matched_tags = array();
-		preg_match_all( "/(z-index)[\s]*:[\s]*([0-9]+)[\s]*;/u", $html, $matched_tags, PREG_SET_ORDER );
+		preg_match_all( "/(z-index)[\s]*:[\s]*([0-9]+)[\s]*/u", $html, $matched_tags, PREG_SET_ORDER );
 		foreach ($matched_tags as $tag) {
 			if ($tag[2]>8000) {
-				$html = str_replace($tag[0],'z-index:8000;',$html);
+				$html = str_replace($tag[0],'z-index:8000',$html);
 			}
 		}
 		

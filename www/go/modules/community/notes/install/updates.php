@@ -28,7 +28,7 @@ $updates['201711071208'][] = 'ALTER TABLE `notes_note` CHANGE `categoryId` `fold
 $updates['201711071208'][] = 'ALTER TABLE `notes_folder` ADD FOREIGN KEY (`aclId`) REFERENCES `core_acl`(`id`) ON DELETE RESTRICT ON UPDATE RESTRICT;';
 $updates['201711071208'][] = 'ALTER TABLE `notes_folder` ADD `modSeq` INT NOT NULL AFTER `id`, ADD `deletedAt` DATETIME NULL DEFAULT NULL AFTER `modSeq`;';
 
-$updates['201711071208'][] = 'ALTER TABLE `notes_note` CHANGE `name` `name` VARCHAR(100) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NOT NULL;';
+$updates['201711071208'][] = 'ALTER TABLE `notes_note` CHANGE `name` `name` VARCHAR(100) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NOT NULL;';
 
 $updates['201711071208'][] = 'RENAME TABLE `notes_folder` TO `notes_note_book`;';
 $updates['201711071208'][] = 'ALTER TABLE `notes_note` CHANGE `folderId` `noteBookId` INT(11) NOT NULL;';
@@ -46,8 +46,8 @@ $updates['201711071208'][] = 'ALTER TABLE `notes_note_custom_fields` ADD FOREIGN
 $updates['201711071208'][] = 'update `core_entity` set moduleId = (select id from core_module where name=\'notes\'), name = \'Note\', clientName = \'Note\' where name = \'GO\\\\Notes\\\\Model\\\\Note\';';
 
 $updates['201712141425'][] = function() {
-		\go\modules\community\notes\model\NoteBook::getType();
-		\go\modules\community\notes\model\Note::getType();		
+		\go\modules\community\notes\model\NoteBook::entityType();
+		\go\modules\community\notes\model\Note::entityType();		
 };
 
 
@@ -81,3 +81,11 @@ $updates['201804181402'][] = "ALTER TABLE `notes_note` DROP `deletedAt`;";
 
 
 $updates['201804181402'][] = "ALTER TABLE `notes_note_book` DROP `modSeq`;";
+
+$updates['201903291350'][] = function() {	
+	$m = new \go\core\install\MigrateCustomFields63to64();
+	$m->migrateEntity("Note");	
+};
+
+$updates['201905201417'][] = "ALTER TABLE `notes_note` DROP FOREIGN KEY `notes_note_ibfk_1`;";
+$updates['201905201417'][] = "ALTER TABLE `notes_note` ADD CONSTRAINT `notes_note_ibfk_1` FOREIGN KEY (`noteBookId`) REFERENCES `notes_note_book`(`id`) ON DELETE RESTRICT ON UPDATE RESTRICT;";

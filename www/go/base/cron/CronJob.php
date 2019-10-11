@@ -44,7 +44,9 @@ use Exception;
 
 class CronJob extends \GO\Base\Db\ActiveRecord {
 		
-	public $paramsToSet = array();
+	public function getParamsToSet() {
+		return $this->_jsonToParams($this->params);
+	} 
 	
 	
 	public function setAttributes($attributes, $format = null) {
@@ -121,8 +123,8 @@ class CronJob extends \GO\Base\Db\ActiveRecord {
 								WHERE user_id=`t`.`id` AND `cu`.`cronjob_id`=:cronjob_id
 							)
 							OR `id` IN (
-								SELECT `ug`.`user_id` FROM `go_cron_groups` cg 
-								INNER JOIN `core_user_group` ug ON `ug`.`group_id`=`cg`.`group_id`
+								SELECT `ug`.`userId` FROM `go_cron_groups` cg 
+								INNER JOIN `core_user_group` ug ON `ug`.`groupId`=`cg`.`group_id`
 								WHERE `cg`.`cronjob_id`=:cronjob_id
 							);";
 		$stmnt = GO::getDbConnection()->prepare($query);
@@ -313,8 +315,9 @@ class CronJob extends \GO\Base\Db\ActiveRecord {
 				
 				
 				// set param on the job
-				if(count($this->paramsToSet)) {
-					foreach ($this->paramsToSet as $key => $value) {
+				$paramsToSet = $this->getParamsToSet();
+				if(count($paramsToSet)) {
+					foreach ($paramsToSet as $key => $value) {
 						$cronFile->{$key} = $value;
 					}
 				}
@@ -329,7 +332,9 @@ class CronJob extends \GO\Base\Db\ActiveRecord {
 				// if we trigger and error again here the cron wont be saved
 				//trigger_error("CronJob ".$this->name." failed. EXCEPTION: ".(string) $e, E_USER_WARNING);
 				\go\core\ErrorHandler::logException($e);
-				$this->error=(string)$e;
+			
+				$this->error = date('c') . ": " .(string)$e;
+
 			}
 			
 			$this->_finishRun($failed);
@@ -354,22 +359,11 @@ class CronJob extends \GO\Base\Db\ActiveRecord {
 				$this->nextrun-=60;
 			}
 		}
-		GO::debug('CRONJOB ('.$this->name.') NEXTRUN : '.$this->getAttribute('nextrun','formatted'));
+		// GO::debug('CRONJOB ('.$this->name.') NEXTRUN : '.date('c', $this->getAttribute('nextrun'));
 		return parent::beforeSave();
 	}
 	
-	
-	
-	protected function afterLoad() {
-		$this->paramsToSet = $this->_jsonToParams($this->params);
-		return parent::afterLoad();
-	}
-	
-
-	
 	private function _getAdditionalJobProperties(){
-		
-		
 		if(empty($this->job) || !class_exists($this->job)) {
 			return array();
 		}

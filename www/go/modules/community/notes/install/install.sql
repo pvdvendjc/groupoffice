@@ -15,7 +15,7 @@ CREATE TABLE `notes_note` (
   `password` varchar(255) DEFAULT '',
   `createdAt` datetime DEFAULT NULL,
   `modifiedAt` datetime DEFAULT NULL
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+) ENGINE=InnoDB;
 
 -- --------------------------------------------------------
 
@@ -30,7 +30,7 @@ CREATE TABLE `notes_note_book` (
   `aclId` int(11) NOT NULL,
   `name` varchar(100) NOT NULL,
   `fileFolderId` int(11) DEFAULT NULL
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+) ENGINE=InnoDB;
 
 -- --------------------------------------------------------
 
@@ -40,7 +40,7 @@ CREATE TABLE `notes_note_book` (
 
 CREATE TABLE `notes_note_custom_fields` (
   `id` int(11) NOT NULL
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+) ENGINE=InnoDB;
 
 --
 -- Indexen voor geëxporteerde tabellen
@@ -88,7 +88,7 @@ ALTER TABLE `notes_note_book`
 -- Beperkingen voor tabel `notes_note`
 --
 ALTER TABLE `notes_note`
-  ADD CONSTRAINT `notes_note_ibfk_1` FOREIGN KEY (`noteBookId`) REFERENCES `notes_note_book` (`id`) ON DELETE CASCADE;
+  ADD CONSTRAINT `notes_note_ibfk_1` FOREIGN KEY (`noteBookId`) REFERENCES `notes_note_book` (`id`) ON DELETE RESTRICT;
 
 --
 -- Beperkingen voor tabel `notes_note_book`

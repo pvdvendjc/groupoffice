@@ -1,3 +1,458 @@
+03-09-2019 6.4.50
+- Bookmarks: Languages readded
+- Bookmarks: Possible to set permissions on category
+- Projects: Sub project link does not navigate to the start page anymore
+- Address Book: Unable to unstar
+- Address book: Change in telephone links so you can select the text
+- Core: Link browser didn't paginate. It loaded all links which could be very slow.
+- Email: Template variables work_fax and work_mobile didn't work
+- Core: Image viewer has print and open in browser button
+- E-mail: In print small part of subject could be missing
+- Core: Keep scroll position on delete in grids but move to top when paging
+- Email: Address book dialog works for cc and bcc
+- Email: Select newsletter lists in composer address book
+- Core: Updated NL and IT translations
+- Core: CSV export was very inefficient. Speed improved dramatically.
+- Newsletters: Removed CAST() function from query to support older MySQL versions
+- Address book: Shrink to fit data when migrating custom fields and row size is too large during migration
+- Billing: fixed missing company name in recipient
+- E-mail: Fixed ICS parsing error. Fixed #440
+- Projects: Added permission type to detail view
+
+02-09-2019 6.4.49
+- Core: Fixed link date not displaying in link browser
+- Address book: Added initials field
+- Core: Dismiss icon missing in reminders
+- Core: order global search by modified date
+- Address book: System setting to automatically link e-mail to contacts
+
+30-08-2019 6.4.48
+- Core: Install comments and bookmarks by default
+- Core: Fixed demo data
+
+30-08-2019 6.4.47
+- Multi instance: upgrades all instances automatically
+- Core: Ability to extend content security policy in modules
+- Core: SSE improvements and option to disable it
+- Demodata: updated for new modules
+
+27-08-2019 6.4.46
+- Core: Custom fields were blank in CSV export.
+- Core: IMAP auth was broken when groups were modified. Removed permission check in user model that is executed in controller
+- Bookmarks: Fixed always reloading of website data
+
+26-08-2019 6.4.45
+- E-mail: Open contact detail menu from email address instead of edit dialog
+- Core: added boolean to be able to show/hide customfields inside a dialog.
+- Google authenticator: Fixed issues when setting up new authenticator.
+- Core: Backup & Confirm before upgrade
+- Core: Upgrade on command line
+- Core: Upload pictures select bug
+- Core: Auto detect CSV delimiter and fixed import of multiple properties
+- Core: Saving quota in user dialog didn't work because of broken compositefield
+
+22-08-2019 6.4.44
+- Core / Calendar: Search button can be in bottom toolbar (Calendar search)
+- Core: Fixed group dialog when default permissions for group was set
+- Address book: Use lastname first when creating files folder
+- Core: Fixed pluload UI
+- Core: Updated French translation
+- Email: Fixed html encoding in header bug
+
+19-08-2019 6.4.43
+- Address book: Install failed
+
+19-08-2019 6.4.42
+- Core: Icon's didn't render on non standard port.
+
+17-08-2019 6.4.41
+- Core: Added users and user groups to select dialog (Composer, Calendar)
+- Calendar: 6.4.24 - Calendar - Error when accepting invite from other GO user #424
+- Document templates: Fixed Can't get not existing property 'photoFile' in 'go\modules\community\addressbook\model\Contact' error with ODT files
+
+16-08-2019 6.4.40
+- Core: Upgrading cleared module settings (Only affected one custom module)
+- Core: Module sorting (two community groups)
+- Address book: Search only showed contact with email
+
+16-08-2019 6.4.39
+- Core: 6.4.36 E-Mail created from task with wrong address #443
+- Core: Fixed saving module permission in group dialog
+- Address book: Changed detail view layout so that email addresses and phonenumbers can be clicked directly and smaller image
+- Address Book: Contact salutation template tag fixed and configurable in the address book settings
+- Address Book / Core: New image field with upload from URL support
+- Address Book: Create files path like in 6.2 for address book files
+- Files: Removed UTF8 to CP850 conversion when creating ZIP files as it works in Windows 10 now
+- Core: Added English / Philippines language and holidays
+
+13-08-2019 6.4.38
+- Core: Adding select option destroyed all data
+- Core: Fixed multiselect custom field migration
+- Email: Fixed invalid autocomplete query returning too many results
+- Address book: Search in email by default too
+
+12-08-2019 6.4.37
+- Calendar: Fixed Error in 
+  /usr/share/groupoffice/modules/calendar/model/Participant.php at line 408: 
+  Call to undefined method go\\modules\\community\\addressbook\\model\\Contact::link()
+- Core: Custom fields migration fixes
+- Core: Fixed upload screen missing style
+
+19-07-2019 6.4.36
+- Core: small ui enhancements
+- Newsletters: Fixed incorrect parsing of images in email templates
+- Address book: Sanitize phone numbers
+- Email: Fixed reset buttton on search type change
+- Email: Remove links from print
+- Core: Improved create link menu button with filters
+- Core: CSP Allow data: uri for fonts for browser extensions
+- Files: Fixed location bar not set initially and  not visible in popup file browser
+- Core: Fixed export CSV error
+- Calendar: Fixed missing link when creating new Event from item
+- Core: Link show search cache date instead of linking date
+- Core: Link delete button does not show through date anymore.
+- Calendar: Home button when opening link takes you to the date in the calendar too
+- E-mail: Save attachment to item works with folder now too by saving directly in the folder
+- Address book: Sort address books alphabetically
+- Email: Link to item dialog could be destroyed
+- Core/Files: Try to clean invalid UTF8 in file names
+- Address book: Fixed contact ActiveSync problems
+- Core: Custom fields upgrade fix for missing select options (TreeSelect, Select and Multiselect)
+
+18-07-2019 6.4.35
+- Core: upgrade error fixed
+
+18-07-2019 6.4.34
+- Core: Error in duplicate with custom fields of type Notes
+- Core: Readable items may be linked
+- Core: show correct icon in create link button for contact and organization
+- Bookmarks: Handle non existing user id's in bookmarks upgrade
+- Billing: Fix for house numbers from address book
+- Billing: Copy matching custom fields from address book again but by database name
+- Billing: Fixed bug in translating invoice PDF
+- Billing: Fixed unsuable UI in product dialog with custom fields.
+- Comments: Company comments were not migrated correctly. Can be fixed by finding out the old entityTypeId from the comments_comment    table. Then do:
+
+   update comments_comment n set entityTypeId=(select id from core_entity where name='Contact'), entityId = (entityId + (select max(id) from ab_contacts)) where entityTypeId = <OLD ENTITY TYPE ID>;
+
+
+15-07-2019 6.4.33
+- Core: Exclude composite fields from form posting again because this gave a lot of saving problems.
+
+11-07-2019 6.4.32
+- Email: Fixed unlinking in email message
+- Address book: {contact:cellular2} and {user:cellular2} work
+- Newsletters: Sent items were not showing in newsletters
+- Core: IE 11 support
+- Leavedays: Employees needed aproval were not bold anymore
+
+11-07-2019 6.4.31
+- Core: Bug in template parsing
+
+11-07-2019 6.4.30
+- Billing: Fixed ODF templates
+- Email: Fixed missing email in to field of composer bug
+- Billing: Link message when emailing from edit dialog
+- imapauth / ldapauth: Fixed e-mail account creation
+- address book: Scrolling in user profile
+- Updated Italian
+- Updated Czech
+
+09-07-2019 6.4.29
+- Core: System settings dialog was reachable for non admins
+- Task / Projects and Billing: HTML encoding bugs in description
+
+08-07-2019 6.4.28
+- Email: Fixed attachment encoding error
+- Core: Fixed contact link to maps #438
+- Core: Core / Extjs language was missing
+- Core: Language download button only worked when dev module is installed. This is no longer necessary.
+- Address book: 6.4.27 - Address book - Add organization - cosmetic issues #436
+- Core: Fixed XSS vulnerabilities
+- Email: Print of an email genarate empty pages Fixed #435
+
+02-07-2019 6.4.27
+- Core: Install without ioncube or license failed
+- Custom fields: Fixed custom fields permissions not editable
+- Comments: couldn't be add by non admin users
+- Address book / Notes: added commentedat, createdby, modifiedby filters
+- Notes: Added custom filters component
+
+02-07-2019 6.4.26
+- Address book: Added organization filter for contacts "org"
+- Address book: configure name sorting by last or first name
+- Address book: Create a new organisation when creating a new contact #426
+- Core: Object values were always posted even if they weren't dirty (Problem with acl's)
+
+01-07-2019 6.4.25
+- Core: Simplified search. All words will be used with AND instead of OR. A wildcard will be placed after each word. 
+- Core: Fixed upgrade error can't find module core/groups
+- Comments: Fixed comment permissions and label editing
+- Core: Loading mask could stick sometimes
+- Email: Click on email from list that has just been deleted elsewhere forever show the Loading ... pop-up #425
+- Emailcomposer: Insert inline image in composer through the upload button 
+  opened a file chooser in which you could only choose folders. 
+  This is now changed to be able to choose (image)files.
+- Address book: Fixed "function" and "first_name" in email templates
+- Core: Fixed downloading language translation file from system settings
+- Serverclient: Fixed autoload issue of Controller.
+
+24-06-2019 6.4.24
+- CardDAV: It was not possible to add new carddav accounts. And sync was broken.
+- Comments: Comments cannot be deleted #414
+- Addres book: Icons and address book name were at the same place.
+- Core: Combobox, when pagesize is given the property "calculateTotal" needs to be send to the server.
+- Core: Fixed deleting mapped properties by setting them to null
+- Authentication: Fixed adding groups to LDAP and IMap auth profiles
+
+21-06-2019 6.4.23
+- Custom fields: Implemented the dbToText function for the select customfield so it's value is showed instead of it's id.
+- Email: Improved autocomplete search
+- Address book: Display adressbook of contact #405
+- Address book: Added address book to detail view and fixed default/Last choosen addressbook is not preselected anymore #399
+- Core: Create link button in dialog showed "undefined"
+- Custom fields: Updating filters didn't work always
+- Core: Check if files module is installed. Fixes 6.4.22 SQLSTATE[42S02]: Base table or view not found: 1146 Table 'web36_db9.fs_folders' doesn't exist #406
+- Core: Mask UI improved. Mask will wait for 500ms until it shows.
+- Core: Changed font to Lato on all platform so UI is consistent
+- Core: Fixed horizontal scrollbar issue
+
+18-06-2019 6.4.22
+- Calendar: Fixed ambiguous id error
+- Notes & Comments: Clicking hyperlinks opens new tabs
+- Tasks: Fixed comment in continue task
+- Email: Fixed error when sending email from contact without an email address
+- Core: Fixed upgrade and installation bugs
+- Address Book: Fixed address book sorting issue. Fixes #400.
+- Files: Fixed issue that type is not a property
+- Billing: fixed grouping of items
+
+11-06-2019 6.4.21
+- First release. Read the release notes here: https://groupoffice.blogspot.com/2019/06/group-office-64-released.html
+
+
+- Billing: Force select of book in duplicate dialog
+- Core: Clear old framework cache on upgrade
+- Project: create invoice without grouping time entries by employees. are time record will be group into 1 group
+- Comments: Removed 10 comment limit
+- Projects: Don't reset travel distance on existing time entries
+
+11-07-2019 6.3.81
+- Core: Enable / disable Add linked item buttons based on permissions
+- Core: Update Czech translation
+- Email: Fixed attachment encoding error
+- LDAPAuth and IMAP auth: Fixed email account creation
+
+24-06-2019 6.3.80
+- Calendar: Fixed error where appointment dialog wouldn't load
+
+24-06-2019 6.3.79
+- Core: Bug in script loading prevented GO from starting
+
+21-06-2019 6.3.78
+- Address book: Fixed bug where to address in composer was not filled when creating mail from contact
+- Projects: Fixed problem where projects wouldn't load after opening a project from a link
+- Core: Faster boot time due to caching in the browser
+
+18-06-2019 6.3.77
+- Files: Fixed issue that searching files throws an error about an ambiguous column
+- Fix for keyboard navigation in Firefox 67
+
+03-06-2019 6.3.76
+- Fixed some 6.2 upgrade issues.
+
+27-05-2019 6.3.75
+- Tickets: Added missing language in tickets for Brazilian portuges
+- Email: Fixed render issue when pasting multiple recipients in email composer
+- Smime: validate if import is in PEM format. Fixed S/MIME Certificate Import Error #288
+- core: fixed language issue with pt_BR
+- billing: show country in full name
+
+21-05-2019 6.3.74
+- core: Use varchar 190 field for search keywords
+- Scanbox: Fixed "link to item" feature
+- Core/Links: Added singleSelect config to createLinkWindow
+- core: Smaller paddings on trees and grids
+- email: red color on email flags
+- customfields: function field could unset other custom fields.
+
+14-05-2019 6.3.73
+- Sync/email: Fixed paging and searching in select email in sync settings
+- Core: Created new setting callto_open_window to control if a phone number click will open a window
+- Core: Fixed issue that when a link is created on model->save and the Link/set is called afterwards, that an error is thrown when the link did    
+        already exist. Now the error is ignored when validationerror status == 11 
+- Core: Clear listeners before creating the new ones again.
+- Core: Fixed issue that the columnSelectGrid for export could crash when pressing "Delete" button to remove a column.
+        Double click or drag/drop should be used. Delete is disabled now.
+
+06-05-2019 6.3.72
+- Core: Auto logout when checker fails fixed
+- Core: Show route in log when access denied error is logged
+- Core: Fixed upgrade issue
+- Email: Fixed email client updating on every checker request
+
+29-04-2019 6.3.71
+- Core: Fixed search caching error
+
+25-04-2019 6.3.70
+
+- Core: Improved logging of JSON parse errors in JMAP API
+- Address book: For user contacts, only use user display name to populate contact when creating a new one
+- Groupoffice Assistant: Fixed url for downloading GroupOffice assistant
+- Email: Fixed permission issie in email account combobox (At sync settings)
+- Core: HTML editor: Fixed "Capital after punctuation" functionality in combination with the shift key
+- Core: Login screen - Fixed problem that language selection was not clickable when a message was shown.
+- Core: Fixed upgrade error for some mysql servers not supporting a large index on core_search
+
+08-04-2019 6.3.69
+
+- Core: Correct UTF-8 encoding on language import
+- Core: Prevent license error in System tasks maintenance
+- Reminders: fixed add reminder in reminder popup module
+- Leavedays: changes in Monthwindow for extending and fix un undefined issue.
+- Core: Pin TCPDF to version 6.2.22. Higher versions break image loading in PDF
+- Address book: search sent invalid data to the server causing problems on some servers
+- Core: Selected group members should be on top when editing groups
+- Core: Overriding permissions in projects was undone by users editing a project with write permissions
+- Files: Files and folders should not have a file browser menu item
+- Core: Updated French translation
+- Custom fields: Fixed rename of tree select slaves
+- Core: Don't trackResetOnLoad in TabbedFormDialog because this will create invalid default values because those dialogs are reused.
+- Core: Links open in popup window like in 6/2
+- Billing: Fixed rounding issue with round up or down enabled
+
+01-04-2019 6.3.68
+- Email: Fixed subfolders with \ as delimiter
+- Timeregistration: Improved error message when time entry with break fails
+- Addressbook: Fixed custom field import 
+- Core: Old framework registered entity incorrectly. "linkedEmail" instead of "LinkedEmail"
+- FileSearch: Fixed links to attached indexed attachments in the displaypanel. (Was broken due to new GO63 router)
+		*** Running the filesearch index again is needed to let this work ***
+- Calendar: Added home button to jump to default calendar
+- Email: Autolink linked items when replying to message
+- Projects: Fixed some issues in new invoice dialog
+- Core: Overflow ellipsis on old displaypanel section headers
+- Core: Handle / ignore open_basedir errors
+- Assistant: Opening files with assistant in shared folder din't work in all cases.
+- Core: Upgrade 6.2 to 6.3 fixed problem when links had an unknown entity id in them.
+- Email: Fixed filename issue with spaces in email attachment download
+
+07-03-2019 6.3.67
+- Customfields: fixed format of max fieldlength for customfields when it is set to 1000 or more. 
+- Core: Updated Czech translation
+- Core: Fixed bug that 30 day trial button did not show.
+- Core: Upgraded to SabreDAV 3.2.3 to fix sync problem with some CardDAV clients (DAVDroid, em client)
+- Core: Add validation to Mapping::addRelation() so developers can't map entities.
+- Core: Dont' open new tab on tel:// click
+- Core: Added maxlength props to text and mediumtext dbtypes
+- Files: Decompress zipped files in folder with read only permissions will throw an access denied exception. 
+- Tickets: Search didn't search message content anymore
+- Multi instance: Use cookie in when logging in from multi instance too.
+
+25-02-2019 6.3.66
+- Core: Fixed removal of Admin group from acl in groups when using "Apply defaults"
+- Users: added ID column (hidden by default)
+- Calendar: Restored select all button for calendars. Ticket #201918192
+- Sync: Fixed error that occured on empty folders.
+- Core: Show description when searching for links
+- Sync: Fixed ticket #201715362. All day event one day short on android.
+- Email/files: Fixed ticket #201918173. File browser didn't reset.
+- Billing: Fixed months in search bar of billing
+- Core: Use cookie to store authentication token to make it available in new opened tabs / windows
+- Customfields: Make the "Max. number of characters:" field usable for textarea customfields too.
+- Savemailas: Fixed issue that "Save as"->"File to item" link window also showed entities that did not have file support.
+- Core/Links: Added "entities" property to filter the list of entities in the link window.
+
+21-02-2019 6.3.65
+- Core/Files: Fixed display of linked files and folders in the displaypanel.
+- Favorites: Fixed gear icon to manage the favorites.
+- Core: Multiselect grid, Added check if the tools property is given.
+- Tasks/Start page: Put headers back so the startpage widget can be sorted on date.
+- Calendar: Fixed problem that opening event dialog the 2nd time did not work.
+- Core: Don't search in TEXT fields by default
+- Address Book: Removed automatic copy to post address because it makes more sense to 
+  use the button
+- Core: Fixed Combobox display of html entities.
+- Document templates: Fixed linking in new email from template
+- Address book: Added address book name to contact and company detail
+- ActiveSync: Fixed z-push-admin and z-push-top command line utilities
+- Serverclient: Server client stayed inactive if installed before 6.3
+- Core: Fixed error handling in rebuild search cache
+
+12-02-2019 6.3.64
+- Calendar: Fixed event dialog crash bug. (FileBrowserButton could not be destroyed)
+- Document templates: Fixed space problem in docx templates
+- Tickets: Use template vars in due date mail
+- Billing: Fixed problem in copying matching custom field names
+- Document templates: Selecting sources was broken
+
+07-02-2019 6.3.63
+- Email: fixed z-index lowering in sanatize function
+- Tasks: Removed ignore ACL from porlet. Tasks should not be shown when permissions are revoked.
+- Cron: Added column that will show the last occured error.
+- Core: Fix Color in columnYesNo renderer for Paper theme.
+- Core: grid column Text renderer will nl2br
+- Style: Changed links style so they so not look like normal text
+- Core: Normalize UTF8 filename on upload. Fix for broken upload function with utf8 filenames.
+- Core: Normalize problem with sync filesystem and filenames in different utf8 encoding.
+- Core: Fixed problem with invalid redirect after installing demo data
+
+04-02-2019 6.3.62
+- Core: Auth should give 401 response and not 403 on bad login
+- Calendar: Fixed calendar grid render issue when events didn't have a gap between them
+- Core: Implemented 'calculateTotal' param for jmap to improve performance on query requests. (global search)
+- Billing: No search button in select product catalog
+- Core: Added "new" button for advanced search window.
+
+31-01-2019 6.3.61
+- Core: Request SSL check works when server is behind proxy too
+- Core: Listeners relied on cache to be persistent causing missing properties "taskSettings" and "googleauthenticator"
+- Assistant: base64 encode paths so that it works with UTF-8 on all platforms and browsers. 
+
+  *** Assistant 1.0.4 is required after this upgrade ***
+
+  https://groupoffice.readthedocs.io/en/latest/using/connect-a-device/connect-a-device.html
+
+28-01-2019 6.3.60
+- Files: clear shared folder cache so incorrect structures will be rebuilt automatically.
+- Projects: Incorrect fee when copied from activity type
+- Sieve: Was inactive because of invalid permission check
+- Core: Added missing index on core_search.keywords
+- Contacts: Added ID column to merge dialog (default hidden)
+
+22-01-2019 6.3.59
+- Mailserver: Server client module works again
+- E-mail: Fixed Email Attachment wiggle #275
+- E-mail: Fixed Sieve issue #268
+- E-mail: Fixed Tooltips in the way of email #276
+- Files: Fixed global folder search
+         Fixed Search Folder #287
+- Core: created checkbox to enable login message.
+        Fixed Missing Features in 6.3.x #290
+- Start page: Portlets must only be declared if user has permissions for the module
+              Fixed Disharmony between Files and Start Page #291
+- Custom fields: Fixed disable custom field categories
+- Core: Invalid sql in cron->getAllUsers()
+- Core: Language didn't merge recursively with English leading to incomplete
+        country selection combo box.
+- Files: Fixed incorrect shared folder tree
+- Core: Removed robots noindex header because they don't have any effect because
+				robots.txt is used.
+- Core: Updated Brazilian Portugese and Czech language
+- Core: Fixed display of short date when choosing date further away than a week.
+- Core: Fixed clicking to dismiss notifier messages
+- Core: Moved search field from pagination bar to the top toolbar in Multiselect grids
+- Core: Added a display name colum to the permissions add dialog. This will make it easier to search for the correct user to add.
+- Core: Use Apcu caching if available.
+- Core: Update in store could make values null that were prefetched. See ticket #201817274.
+- Projects2/Timeregistration: Fixed issue that the invoiced check icon for time entries was not displayed anymore.
+- Core: Delete search cache and links when entities are deleted.
+- Core: Run checkdatabase as admin. Fixes #266
+
+11-12-2018 6.3.58
+- Core: Fixed access denied error in upgrade.
+
+10-12-2018 6.3.57
 - Billing: Fixed loading address data when opening Orderdialog from contact (link)
 - Files: Copy custom field settings too when copying folders
 - Core: moving a folder failed when on different volumes
