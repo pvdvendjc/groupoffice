@@ -26,7 +26,7 @@ go.customfields.type.Date = Ext.extend(go.customfields.type.Text, {
 	 * @returns {unresolved}
 	 */
 	renderDetailView: function (value, data, customfield) {
-		return GO.util.dateFormat(value);
+		return go.util.Format.date(value);
 	},
 
 	/**
@@ -61,6 +61,7 @@ go.customfields.type.Date = Ext.extend(go.customfields.type.Text, {
 	getFilter : function(field) {
 		return {
 			name: field.databaseName,
+			wildcards: false,
 			type: "date",
 			multiple: false,
 			title: field.name
@@ -70,5 +71,5 @@ go.customfields.type.Date = Ext.extend(go.customfields.type.Text, {
 
 });
 
-go.customfields.CustomFields.registerType(new go.customfields.type.Date());
+// go.customfields.CustomFields.registerType(new go.customfields.type.Date());
 

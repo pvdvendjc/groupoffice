@@ -16,7 +16,8 @@ use go\core\db\Table;
     use go\core\event\Listeners;
 use go\core\exception\ConfigurationException;
 use go\core\fs\Folder;
-use go\core\jmap\State;
+    use go\core\http\Request;
+    use go\core\jmap\State;
 use go\core\mail\Mailer;
 use go\core\util\Lock;
 use go\core\webclient\Extjs3;
@@ -47,6 +48,11 @@ use const GO_CONFIG_FILE;
 		 * Can also be used to adjust the Content Security Policy
 		 */
 		const EVENT_HEAD = 'head';
+
+		/**
+		 * Fires after all scripts have been loaded
+		 */
+		const EVENT_SCRIPTS = 'scripts';
 
 		/**
 		 *
@@ -82,7 +88,7 @@ use const GO_CONFIG_FILE;
 		
 		/**
 		 * Required for app being a go\core extend
-		 *
+		 * 
 		 * @return string
 		 */
 		public function getAuthor() {
@@ -91,7 +97,7 @@ use const GO_CONFIG_FILE;
 
 		/**
 		 * Required for app being a go\core extend
-		 *
+		 * 
 		 * @return string
 		 */
 		public static function getName() {
@@ -100,7 +106,7 @@ use const GO_CONFIG_FILE;
 
 		/**
 		 * Required for app being a go\core extend
-		 *
+		 * 
 		 * @return string
 		 */
 		public static function getPackage() {
@@ -109,7 +115,7 @@ use const GO_CONFIG_FILE;
 
 		/**
 		 * Get version number
-		 *
+		 * 
 		 * @return string eg. 6.4.1
 		 */
 		public function getVersion() {
@@ -121,7 +127,7 @@ use const GO_CONFIG_FILE;
 
 		/**
 		 * Major version
-		 *
+		 * 
 		 * @return string eg. 6.4
 		 */
 		public function getMajorVersion() {
@@ -178,7 +184,13 @@ use const GO_CONFIG_FILE;
 		public function getStorageQuota() {
 			$quota = $this->getConfig()['core']['limits']['storageQuota'];
 			if(empty($quota)) {
-				$quota = disk_total_space($this->getConfig()['core']['general']['dataPath']);
+				try {
+					$quota = disk_total_space($this->getConfig()['core']['general']['dataPath']);
+				}
+				catch(\Exception $e) {
+					go()->warn("Could not determine total disk space: ". $e->getMessage());
+					return 0;
+				}
 			}
 			
 			return $quota;
@@ -192,7 +204,13 @@ use const GO_CONFIG_FILE;
 		public function getStorageFreeSpace() {
 			$quota = $this->getConfig()['core']['limits']['storageQuota'];
 			if(empty($quota)) {
-				return disk_free_space($this->getConfig()['core']['general']['dataPath']);
+				try {
+					return disk_free_space($this->getConfig()['core']['general']['dataPath']);
+				}
+				catch(\Exception $e) {
+					go()->warn("Could not determine free disk space: ". $e->getMessage());
+					return 0;
+				}
 			} else
 			{
 				 $usage = \GO::config()->get_setting('file_storage_usage');				 
@@ -263,14 +281,14 @@ use const GO_CONFIG_FILE;
 				$host = isset($_SERVER['HTTP_HOST']) ? explode(':', $_SERVER['HTTP_HOST'])[0] : '<HOSTNAME>';
 				
 				$msg = "No config.php was found. Possible locations: \n\n".
-								"/etc/groupoffice/multi_instance/" .$host . "/config.php\n\n".
+								"/etc/groupoffice/multi_instance/" .$host . "/config.php\n\n".				
 								 dirname(dirname(__DIR__)) . "/config.php\n\n".
 								"/etc/groupoffice/config.php";
 				
 				throw new Exception($msg);
 			}
 			
-			require($configFile);
+			require($configFile);	
 			
 			if(!isset($config)) {
 				throw new ConfigurationException();
@@ -304,15 +322,22 @@ use const GO_CONFIG_FILE;
 			}
 			
 			$config = array_merge($this->getGlobalConfig(), $this->getInstanceConfig());
+
+			if(Request::get()->getHeader('X-Debug') == "1") {
+				$config['debug'] = true;
+			}
 			
+			if(!isset($config['debug_log'])) {
+				$config['debug_log'] = !empty($config['debug']);
+			}
 			
-			
-			$this->config = (new util\ArrayObject([
+			$this->config = (new util\ArrayObject([					
 					"core" => [
 							"general" => [
 									"dataPath" => $config['file_storage_path'] ?? '/home/groupoffice', //TODO default should be /var/lib/groupoffice
 									"tmpPath" => $config['tmpdir'] ?? sys_get_temp_dir() . '/groupoffice',
 									"debug" => $config['debug'] ?? null,
+									"debugLog" => $config['debug_log'],
 									
 									"servermanager" => $config['servermanager'] ?? false,
 
@@ -333,7 +358,7 @@ use const GO_CONFIG_FILE;
 							],
 							"branding" => [
 								"name" => $config['product_name'] ?? "GroupOffice"
-							],
+							],						
 					],
 					
 //					"package" => [
@@ -345,7 +370,7 @@ use const GO_CONFIG_FILE;
 			
 			if(!isset($this->config['core']['general']['cache'])) {
 				if(cache\Apcu::isSupported()) {
-					$this->config['core']['general']['cache'] = cache\Apcu::class;
+					$this->config['core']['general']['cache'] = cache\Apcu::class;				
 				} else
 				{
 					$this->config['core']['general']['cache'] = cache\Disk::class;
@@ -412,9 +437,9 @@ use const GO_CONFIG_FILE;
 		
 		/**
 		 * Get a module
-		 *
+		 * 
 		 * return the module if it's installed and available.
-		 *
+		 * 
 		 * @param string $package Set to null for legacy modules
 		 * @param string $name
 		 * @return \go\core\model\Module
@@ -452,7 +477,7 @@ use const GO_CONFIG_FILE;
 			if($lock->lock()) {
 				\GO::clearCache(); //legacy
 
-				GO()->getCache()->flush(false);
+				go()->getCache()->flush(false);
 				Table::destroyInstances();
 
 				$webclient = Extjs3::get();
@@ -537,7 +562,7 @@ use const GO_CONFIG_FILE;
 		
 		/**
 		 * Get the server environment
-		 *
+		 * 
 		 * @return Environment
 		 */
 		public function getEnvironment() {
@@ -548,9 +573,9 @@ use const GO_CONFIG_FILE;
 		 * Get the authenticated user ID
 		 * 
 		 * If you need to get the full user use:
-		 *
+		 * 
 		 * ```
-		 * GO()->getAuthState()->getUser();
+		 * go()->getAuthState()->getUser();
 		 * ```
 		 * @return int
 		 */
@@ -597,14 +622,14 @@ use const GO_CONFIG_FILE;
 
 		/**
 		 * Find the config.php file location.
-		 *
+		 * 
 		 * It will search for:
-		 *
+		 * 
 		 * - 'GO_CONFIG_FILE' constant or environment variable ($_SERVER['GO_CONFIG_FILE']).
 		 * - /etc/groupoffice/multi_instance/<HOSTNAME>/config.php
 		 * - <GROUPOFFICEDIR>/config.php
 		 * - /etc/groupoffice/config.php
-		 *
+		 * 
 		 * @param string $name
 		 * @return boolean|string
 		 */
@@ -656,42 +681,42 @@ use const GO_CONFIG_FILE;
 		
 		/**
 		 * Resets all entity state so all clients must resync data.
-		 *
+		 * 
 		 * @todo resync per entity
 		 */
-		public function resetSyncState() {
+		public function resetSyncState() {		
 			//reset all mod seqs
-			GO()->getDbConnection()->update('core_entity', ['highestModSeq' => 0])->execute();
-			GO()->getDbConnection()->exec("TRUNCATE TABLE core_change");
-			GO()->getDbConnection()->exec("TRUNCATE TABLE core_acl_group_changes");
-			GO()->getDbConnection()->insert('core_acl_group_changes', (new Query())->select("null, aclId, groupId, '0', null")->from("core_acl_group"))->execute();
+			go()->getDbConnection()->update('core_entity', ['highestModSeq' => 0])->execute();
+			go()->getDbConnection()->exec("TRUNCATE TABLE core_change");
+			go()->getDbConnection()->exec("TRUNCATE TABLE core_acl_group_changes");
+			go()->getDbConnection()->insert('core_acl_group_changes', (new Query())->select("null, aclId, groupId, '0', null")->from("core_acl_group"))->execute();
 		}
 
 		/**
 		 * Download method for module icons
-		 *
+		 * 
 		 * /api/download.php?blob=core/moduleIcon/community/addressbook
 		 */
 		public function downloadModuleIcon($package, $name) {
 
 			if($package == "legacy") {
-				$file = GO()->getEnvironment()->getInstallFolder()->getFile('modules/' . $name .'/themes/Default/images/'.$name.'.png');
+				$file = go()->getEnvironment()->getInstallFolder()->getFile('modules/' . $name .'/themes/Default/images/'.$name.'.png');
 				if(!$file->exists()) {
-					$file = GO()->getEnvironment()->getInstallFolder()->getFile('modules/' . $name .'/views/Extjs3/themes/Default/images/'.$name.'.png');
-				}
+					$file = go()->getEnvironment()->getInstallFolder()->getFile('modules/' . $name .'/views/Extjs3/themes/Default/images/'.$name.'.png');
+				}	
 
 				if(!$file->exists()) {
-					$file = GO()->getEnvironment()->getInstallFolder()->getFile('modules/' . $name .'/themes/Default/'.$name.'.png');
-				}
+					$file = go()->getEnvironment()->getInstallFolder()->getFile('modules/' . $name .'/themes/Default/'.$name.'.png');
+				}	
 
 				
 
 			} else {
-				$file = GO()->getEnvironment()->getInstallFolder()->getFile('go/modules/' . $package . '/' . $name .'/icon.png');
+				$file = go()->getEnvironment()->getInstallFolder()->getFile('go/modules/' . $package . '/' . $name .'/icon.png');
 			}
 
 			if(!$file->exists()) {
-				$file = GO()->getEnvironment()->getInstallFolder()->getFile('views/Extjs3/themes/Paper/img/default-avatar.svg');
+				$file = go()->getEnvironment()->getInstallFolder()->getFile('views/Extjs3/themes/Paper/img/default-avatar.svg');
 			}
 			$file->output(true, true, ['Content-Disposition' => 'inline; filename="module.svg"']);
 		}
@@ -704,7 +729,7 @@ namespace {
 	/**
 	 * @return go\core\App
 	 */
-	function GO() {
+	function go() {
 		return App::get();
 	}
 
