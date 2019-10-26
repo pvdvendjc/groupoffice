@@ -1,3 +1,15 @@
+- Projects: Fixed activity sort in time tracking
+- Billing: Fixed total not always updating in expense dialog
+
+11-10-2019 6.3.83
+- Core: Working week didn't accept half hours
+- Time Tracking: Sort time tracking activities by name
+- Calendar: Calendar remember state
+- Assistant: Didn't work with @ in username
+- Core: fixed 6.2 email settings upgrade
+
+19-09-2019 6.3.82
+- Projects larger expense budget dialog and resizable
 - Billing: Force select of book in duplicate dialog
 - Core: Clear old framework cache on upgrade
 - Project: create invoice without grouping time entries by employees. are time record will be group into 1 group
