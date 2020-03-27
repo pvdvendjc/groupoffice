@@ -1,5 +1,37 @@
+- Core: Check if db is in invalid state (partially upgraded to 6.3) before upgraded
+- Sieve: Fixed bug where sieve dialog showed folders of other account
+- Files: Assistant installation replaces GOTA file handlers
+
+27-01-2020 6.3.89
+- Tickets: Show confirm on closing tickets option broke module settings and email viewing.
+
+22-01-2020 6.3.88
+- Core: removed broken required_condition from 6.3
+
+21-01-2020 6.3.87
+- Sieve: Remove :create flag in fileinto command
+- Tickets: Leave ticket blank by default didn't work anymore
+- Calendar: Set resource title of private event to "Private"
+- Calendar: Don't allow calendars from others as default calendar
+- Smime: Added OCSP revocation check
+
+19-12-2019 6.3.86
+- Projects: Send company id when selecting contact
+- User: account creation checks for the max users count
+
+17-12-2019 6.3.85
+- Files: We did an update to Group-Office which comes with a new implementation of the Group-Office Assistant. If you use this please update it to the new version. You can find it under "Files" for your operating system at this page:
+https://groupoffice.readthedocs.io/en/latest/using/connect-a-device/connect-a-device.html
+
+- Calendar: Show unconfirmed holidays
+- Core: Fixed upgrade when $config['webmaster_email'] is not present.
+- Email: Fixed showing emoticons in email
+
+01-11-2019 6.3.84
 - Projects: Fixed activity sort in time tracking
 - Billing: Fixed total not always updating in expense dialog
+- Projects: Send contact ID when creating project from e-mail
+- Tasks: Fixed link to project after cancel
 
 11-10-2019 6.3.83
 - Core: Working week didn't accept half hours

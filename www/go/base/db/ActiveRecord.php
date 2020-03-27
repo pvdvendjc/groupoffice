@@ -2253,6 +2253,19 @@ abstract class ActiveRecord extends \GO\Base\Model{
 				case 'date':
 					return  \GO\Base\Util\Date::to_db_date($value);
 					break;
+				case 'datetime':
+					if(empty($value))
+					{
+						return null;
+					}
+					$time = \GO\Base\Util\Date::to_unixtime($value);
+					if(!$time)
+					{
+						return null;
+					}
+					$date_format =  'Y-m-d H:i:s';
+					return date($date_format, $time);
+					break;
 				case 'textfield':
 					return (string) $value;
 					break;
@@ -2333,6 +2346,15 @@ abstract class ActiveRecord extends \GO\Base\Model{
 				return $date->format(GO::user()?GO::user()->completeDateFormat:GO::config()->getCompleteDateFormat());
 
 				//return $value != '0000-00-00' ? \GO\Base\Util\Date::get_timestamp(strtotime($value),false) : '';
+				break;
+
+			case 'datetime':
+
+				if($value == "0000-00-00" || empty($value))
+					return null;
+
+				$date = new \DateTime($value);
+				return $date->format('c');
 				break;
 
 			case 'number':
@@ -4460,7 +4482,17 @@ abstract class ActiveRecord extends \GO\Base\Model{
 
 		$isSearchCacheModel = ($this instanceof \GO\Base\Model\SearchCacheRecord);
 
-		if(!$this->hasLinks() && !$isSearchCacheModel)
+		$disableLinksFor = GO::config()->disable_links_for ? GO::config()->disable_links_for : array();
+		if (!is_array($disableLinksFor)) {
+			$disableLinksFor = [$disableLinksFor];
+		}
+
+		$linksDisabled = false;
+		if (in_array(self::className(), $disableLinksFor, true) || in_array(get_class($model), $disableLinksFor, true)) {
+			$linksDisabled = true;
+		}
+
+		if((!$this->hasLinks() && !$isSearchCacheModel) || $linksDisabled)
 			throw new \Exception("Links not supported by ".$this->className ());
 
 		if($this->linkExists($model))

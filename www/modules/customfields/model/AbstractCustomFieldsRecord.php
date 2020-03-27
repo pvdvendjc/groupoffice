@@ -22,6 +22,10 @@
 namespace GO\Customfields\Model;
 
 
+use GO\Base\Db\ActiveRecord;
+use go\core\validate\ErrorCode;
+use GO\Customfields\Customfieldtype\AbstractCustomfieldtype;
+
 abstract class AbstractCustomFieldsRecord extends \GO\Base\Db\ActiveRecord{
 	
 	/**
@@ -60,7 +64,8 @@ abstract class AbstractCustomFieldsRecord extends \GO\Base\Db\ActiveRecord{
 	}
 	
 	public function getModel() {
-		$model = $this->getExtendedModel()->findByPk($this->model_id,false,true);
+		$pkField = $this->primaryKey();
+		$model = $this->getExtendedModel()->findByPk($this->$pkField,false,true);
 		if(!$model)
 			$model = $this->getExtendedModel();
 		return $model;
@@ -120,7 +125,7 @@ abstract class AbstractCustomFieldsRecord extends \GO\Base\Db\ActiveRecord{
 					self::$cacheColumns[$this->extendsModel()][$field->columnName()]['regex']=isset($field->options['validationRegex']) ? $field->options['validationRegex'] : "";
 					self::$cacheColumns[$this->extendsModel()][$field->columnName()]['gotype']='customfield';
 					self::$cacheColumns[$this->extendsModel()][$field->columnName()]['unique']=$field->unique_values;
-	
+
 					//Don't validate required on the server side because customfields tabs can be disabled.
 					//self::$cacheColumns[$this->extendsModel()][$field->columnName()]['required']=$field->required;
 

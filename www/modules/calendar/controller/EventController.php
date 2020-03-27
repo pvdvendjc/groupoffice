@@ -364,13 +364,13 @@ class EventController extends \GO\Base\Controller\AbstractModelController {
 
 					$resourceEvent->resource_event_id = $model->id;
 					$resourceEvent->calendar_id = $resource_calendar_id;
-					$resourceEvent->name = $model->name;
+					$resourceEvent->name = $model->private ? \GO::t('privateEvent','calendar') : $model->name;
 					$resourceEvent->start_time = $model->start_time;
 					$resourceEvent->end_time = $model->end_time;
 					$resourceEvent->rrule = $model->rrule;
 					$resourceEvent->repeat_end_time = $model->repeat_end_time;
 					$resourceEvent->user_id = $model->user_id;
-
+					$resourceEvent->private = $model->private;
 					$resourceEvent->busy = !$resourceEvent->calendar->group->show_not_as_busy;
 
 
@@ -1265,7 +1265,7 @@ class EventController extends \GO\Base\Controller\AbstractModelController {
 //		
 //		$leavedays = \GO\Leavedays\Model\Leaveday::model()
 		//$holidays = \GO\Base\Model\Holiday::model()->getHolidaysInPeriod($startTime, $endTime, $calendar->user->language);
-		$leavedaysStmt = \GO\Leavedays\Model\Leaveday::model()->getLeavedaysInPeriod($calendar->user->id,$startTime, $endTime);
+		$leavedaysStmt = \GO\Leavedays\Model\Leaveday::model()->getLeavedaysInPeriod($calendar->user->id,$startTime, $endTime, null);
 		
 		if($leavedaysStmt){
 			while($leavedayModel = $leavedaysStmt->fetch()){ 
