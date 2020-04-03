@@ -25,10 +25,24 @@ go.login.UsernamePanel = Ext.extend(go.login.BaseLoginPanel, {
 			autocomplete: 'current-password'
 		});
 
+		this.logoutOtherDevicesField = new Ext.form.Checkbox({
+			itemId: 'otherDevices',
+			fieldLabel: t('Logout other devices'),
+			name: 'otherDevices',
+			value: false,
+			hidden: true,
+			listeners: {
+				check: function(cb, checked) {
+					go.AuthenticationManager.logoutOtherDevices = checked;
+				}
+			}
+		});
+
 		var items = [
 
 			this.usernameField,
 			this.passwordField,
+			this.logoutOtherDevicesField,
 			{
 				itemCls: 'go-login-remember',
 				hideLabel: true,
@@ -96,6 +110,10 @@ go.login.UsernamePanel = Ext.extend(go.login.BaseLoginPanel, {
 						break;
 					case 5:
 						this.passwordField.markInvalid(t('Not found'));
+						break;
+					case 100:
+						this.logoutOtherDevicesField.setVisible(true);
+						Ext.MessageBox.alert(t('Warning'), errors[key].description);
 						break;
 					case 10:
 					default:

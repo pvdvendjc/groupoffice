@@ -1004,6 +1004,14 @@ var $billing_clear_payment_method_on_duplicate = true;
 	 */
 	var $file_change_group = '';
 
+    /*
+     * Check if users are logged in on multiple devices.
+     * @var bool
+     * @access public
+     */
+	var $check_multiple_devices = false;
+
+
 	/*////////////////////////////////////////////////
 	 * Variables below this should not be changed
 	 *////////////////////////////////////////////////

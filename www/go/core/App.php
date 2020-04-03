@@ -367,7 +367,7 @@ use const GO_CONFIG_FILE;
 									
 									"servermanager" => $config['servermanager'] ?? false,
 
-									"sseEnabled" => $config['sseEnabled'] ?? true
+									"sseEnabled" => $config['sseEnabled'] ?? true,
 							],
 							"db" => [
 									"host" => ($config['db_host'] ?? "localhost"),
@@ -380,7 +380,9 @@ use const GO_CONFIG_FILE;
 							"limits" => [
 									"maxUsers" => $config['max_users'] ?? 0,
 									"storageQuota" => $config['quota'] ?? 0,
-									"allowedModules" => $config['allowed_modules'] ?? ""
+									"allowedModules" => $config['allowed_modules'] ?? "",
+                                    "checkMultipleDevices" => $config['check_multiple_devices'] ?? false
+
 							],
 							"branding" => [
 								"name" => $config['product_name'] ?? "GroupOffice"

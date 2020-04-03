@@ -4,7 +4,9 @@ forum
 /nbproject
 /*-license.txt
 .idea
+.project
 /www/vendor
+/www/*-license.txt
 /config.php
 /www/config.php
 /www/views/Extjs3/themes/Paper/*.css

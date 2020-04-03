@@ -30,6 +30,7 @@ go.AuthenticationManager = (function () {
 		userMethods: [],
 		
 		rememberLogin:false,
+		logoutOtherDevices: false,
 
 		/**
 		 * Register new authenticator
@@ -71,7 +72,8 @@ go.AuthenticationManager = (function () {
 				deviceName: navigator.userAgent,
 				username: username,
 				password: password,
-				rememberLogin: this.rememberLogin
+				rememberLogin: this.rememberLogin,
+				logoutOtherDevices: this.logoutOtherDevices
 			};
 
 			Ext.Ajax.request({

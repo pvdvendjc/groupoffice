@@ -104,7 +104,7 @@ try {
 	}
 
 
-	function getToken($data) {		
+	function getToken($data, &$authenticator) {
 		//loop through all auth methods
 		$authMethods = Method::find()->orderBy(['sortOrder' => 'DESC']);
 		foreach ($authMethods as $method) {
@@ -117,7 +117,7 @@ try {
 			}
 
 			go()->log("Trying: " . get_class($authenticator));
-			if (!$user = $authenticator->authenticate($data['username'], $data['password'])) {
+			if (!$user = $authenticator->authenticate($data['username'], $data['password'], isset($data['logoutOtherDevices']) ? $data['logoutOtherDevices'] : false)) {
 				go()->log("failed");
 				return false;
 			}
@@ -154,12 +154,11 @@ try {
 
 	if (!isset($data['loginToken']) && !isset($data['accessToken']) && !empty($data['username'])) {
 
-		$token = getToken($data);
+	    $authenticator = null;
+		$token = getToken($data, $authenticator);
 		if (!$token) {
 			output([
-					'errors' => [
-							'username' => ["description" => "Bad username or password", "code" => ErrorCode::INVALID_INPUT]
-					]
+					'errors' => $authenticator->getValidationErrors()
 							], 401, "Bad username or password");
 		}
 	} else {
